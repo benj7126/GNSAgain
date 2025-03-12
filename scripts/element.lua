@@ -41,7 +41,7 @@ function ElementStyle:recalculate(x, y, w, h)
     self.w = self.width:getValue(w)
     self.h = self.height:getValue(h)
 
-    -- think this is how it's supposed to work...   
+    -- think this is how it's supposed to work...
     self.x = self.x + (w - self.w) * self.hAlign
     self.y = self.y + (h - self.h) * self.vAlign
 end
@@ -73,6 +73,9 @@ function Element:new()
 
     -- loads a shit; things from here \/
     -- https://github.com/benj7126/GNSUsingCS/blob/master/Element.cs
+
+    -- should somehow have code in this shit :/
+    -- it should somehow be a string that i can load into an element so that i can edit it in the program
 
     return element
 end
