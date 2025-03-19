@@ -1,4 +1,4 @@
-local Element = require("element")
+local Element = require("elements.element")
 local Box = Element:new()
 
 function Box:new(workspace)

@@ -1,4 +1,5 @@
-﻿using GNSUsingCS;
+﻿using GNSAgain.luaLinkings;
+using GNSUsingCS;
 using KeraLua;
 using NLua;
 using System.ComponentModel;
@@ -28,7 +29,7 @@ namespace GNSAgain
             RaylibMethods.Setup(L);
             setupMethods();
             
-            L.DoString(Modules["core"]); // should be a setting?
+            L.DoString(Modules["core"]); // should be a setting - default module name?
         }
 
         private static void callFunctionFromCode(string code, string functionName, params object[] args)

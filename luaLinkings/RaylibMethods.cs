@@ -2,15 +2,15 @@
 using NLua;
 using Raylib_cs;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Formats.Tar;
 using System.Linq;
-using System.Reflection;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GNSUsingCS
+namespace GNSAgain.luaLinkings
 {
     public static class RaylibMethods
     {
@@ -19,6 +19,8 @@ namespace GNSUsingCS
             L.NewTable("rl");
             LuaTable a = L.GetTable("rl");
             a["rec"] = DrawRectangle;
+            a["vec"] = (float x, float y) => new Vector2(x, y);
+            a["drawTextCodepoint"] = DrawTextCodepoint;
         }
 
         [LuaMethod(["rl"])]

@@ -1,6 +1,8 @@
 ﻿global using static Raylib_cs.Raylib;
+using GNSUsingCS;
 using Raylib_cs;
 using System.Diagnostics;
+using System.Numerics;
 
 // for online writing stuff.
 // https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type#Industry_use
@@ -11,11 +13,10 @@ namespace GNSAgain
     {
         static void Main(string[] args)
         {
-            LuaHandler.SetupLuaInterfacer();
-
             InitWindow(1200, 800, "basic window");
             SetTargetFPS(60);
 
+            LuaHandler.SetupLuaInterfacer();
 
             while (!WindowShouldClose())
             {

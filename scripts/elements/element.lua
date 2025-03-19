@@ -1,3 +1,6 @@
+-- should be in elements as it is an "empty" element
+-- potentially for events.
+
 local StyleDimension = {}
 
 function StyleDimension:new()
@@ -77,6 +80,9 @@ function Element:new()
     -- should somehow have code in this shit :/
     -- it should somehow be a string that i can load into an element so that i can edit it in the program
 
+    -- apply a wrapper for pre and post calls and other relevant things - if i think of any
+    -- might make stuff slower but we will see... (it would be quite convinient though)
+    -- could be used for error messages, maby?
     return element
 end
 
