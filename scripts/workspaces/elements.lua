@@ -1,4 +1,4 @@
-local Workspace = require("workspace")
+local Workspace = require("workspaces.workspace")
 local Elements = Workspace:new()
 
 function Elements:new(workspace)
@@ -45,6 +45,17 @@ end
 function Elements:update()
     for _, elms in pairs(self.elements) do
         elms:update()
+    end
+end
+
+function Elements:propagateEvent(event)
+    event:passed(self)
+    if self:handleEvent(event) then return end
+    for _, elm in pairs(self.elements) do
+        if WithingBox(elm.es.x, elm.es.y, elm.es.w, elm.es.h, event.pos) then
+            elm:propagateEvent(event)
+            return
+        end
     end
 end
 

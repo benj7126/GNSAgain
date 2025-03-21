@@ -1,4 +1,4 @@
-local DropInto = require("workspaces.dropInto")
+local DropInto = require("workspaces.workspace")
 local Stacked = DropInto:new()
 
 function Stacked:new(workspace)
@@ -25,8 +25,22 @@ function Stacked:update()
     self.workspaces[self.focused]:update()
 end
 
-function Stacked:dropInto(x, y, workspace)
-    table.insert(self.workspaces, workspace) -- for now
+function Stacked:propagateEvent(event)
+    event:passed(self)
+    if self:handleEvent(event) then return end
+    self.workspaces[1]:propagateEvent(event)
+    --[[ above is temp solution
+    for _, elm in pairs(self.elements) do
+        if WithingBox(self.es.x, self.es.y, self.es.w, self.es.h, event.pos) then
+            elm:propagateEvent(event)
+            return
+        end
+    end]]
 end
+
+--[[
+function Split:dropInto(x, y, workspace)
+    table.insert(self.workspaces, workspace) -- for now
+end]]
 
 return Stacked

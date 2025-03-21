@@ -269,7 +269,7 @@ namespace GNSAgain.luaLinkings
             }
 
             bool setCursor = IsMouseButtonPressed(MouseButton.Left) || cursorPos is not null; //  IsHovered && IsMouseButtonPressed(MouseButton.Left) || cursorPos is not null;
-            cursorPos ??= MouseManager.MousePosition - new Vector2(x, y); // + _scroll;
+            // cursorPos ??= MouseManager - new Vector2(x, y); // + _scroll;
             Vector2 mPos = cursorPos.Value;
 
             if (setCursor)

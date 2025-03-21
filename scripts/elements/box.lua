@@ -1,10 +1,10 @@
 local Element = require("elements.element")
-local Box = Element:new()
+local Box = Element:from()
 
 function Box:new(workspace)
     local b = Element.new(Box)
 
-    b.color = rl.color(0, 0, 0)
+    b.color = rl.color(255, 255, 0)
 
     return b
 end

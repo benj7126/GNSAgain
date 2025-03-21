@@ -9,9 +9,28 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using GNSAgain;
+using NLua;
 
 namespace GNSUsingCS
 {
+    internal class InputEvent : Event
+    {
+        public string key;
+        public InputEvent(char key) : base(new(), "input")
+        {
+            this.key = key.ToString();
+        }
+    }
+    internal class KeyboardEvent : Event
+    {
+        public int key;
+        public List<KeyAddition> additions;
+        public KeyboardEvent(int key, List<KeyAddition> additions) : base(new(), "specialKey")
+        {
+            this.key = key;
+            this.additions = additions;
+        }
+    }
     internal static class InputManager
     {
         private static readonly KeyboardKey[] _specialKeys = [
@@ -24,46 +43,35 @@ namespace GNSUsingCS
             KeyboardKey.Delete
         ];
 
-        private static IInput? _inputObject; // Should be a lua string?
-                                             // And the ability to "subscribe" to all key inputs.
+        private static List<LuaTable> _fakeEventOrder = [];
 
         private static KeyboardKey _specialHeldKey;
         private static float _heldRepeatTimer;
 
-        public static void SetInput(IInput obj)
+        [LuaMethod("rl")]
+        private static void setInput(Event luaEvent)
         {
-            _inputObject = obj;
+            _fakeEventOrder = luaEvent.chain;
         }
 
-        public static bool CheckSelected(IInput obj)
+        [LuaMethod("rl")]
+        private static bool checkReceiving(LuaTable obj)
         {
-            return _inputObject == obj;
+            return _fakeEventOrder.Contains(obj);
         }
-
-        public static void ClearInput()
+        
+        /*public static void ClearInput()
         {
-            _inputObject = null;
-        }
+            _fakeEventOrder.Clear();
+        }*/
 
         public static void Update()
         {
-            if (_inputObject is null)
+            if (_fakeEventOrder.Count == 0)
             {
                 _specialHeldKey = 0;
                 return;
             }
-
-            // Character input
-
-            int c = GetCharPressed();
-            while (c != 0)
-            {
-                _inputObject.IncommingCharacter((char)c);
-
-                c = GetCharPressed();
-            }
-
-            _heldRepeatTimer -= GetFrameTime();
 
             List<KeyAddition> additions = [];
             if (IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl))
@@ -75,13 +83,27 @@ namespace GNSUsingCS
             if (IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift))
                 additions.Add(KeyAddition.Shift);
 
+            // Character input
+
+            int c = GetCharPressed();
+            while (c != 0)
+            {
+                // _inputObject.IncommingCharacter((char)c);
+                LuaHandler.FakeEvent(_fakeEventOrder, new InputEvent((char)c));
+
+                c = GetCharPressed();
+            }
+
+            _heldRepeatTimer -= GetFrameTime();
+
             int k = GetKeyPressed();
             while (k != 0)
             {
                 _specialHeldKey = 0;
                 if (_specialKeys.Contains((KeyboardKey)k))
                 {
-                    _inputObject.IncommingSpecialKey((KeyboardKey)k, additions);
+                    // _inputObject.IncommingSpecialKey((KeyboardKey)k, additions);
+                    LuaHandler.FakeEvent(_fakeEventOrder, new KeyboardEvent(k, additions));
                     //_heldRepeatTimer = Settings.FirstRepeatKeyTime;
                     _specialHeldKey = (KeyboardKey)k;
                 }
@@ -99,11 +121,13 @@ namespace GNSUsingCS
                 //_heldRepeatTimer = Settings.RepeatKeyTime;
                 if (_specialKeys.Contains(_specialHeldKey))
                 {
-                    _inputObject.IncommingSpecialKey(_specialHeldKey, additions);
+                    //_inputObject.IncommingSpecialKey(_specialHeldKey, additions);
+                    LuaHandler.FakeEvent(_fakeEventOrder, new KeyboardEvent((int)_specialHeldKey, additions));
                 }
                 else
                 {
-                    _inputObject.IncommingCharacter((char)_specialHeldKey);
+                    //_inputObject.IncommingCharacter((char)_specialHeldKey);
+                    LuaHandler.FakeEvent(_fakeEventOrder, new InputEvent((char)_specialHeldKey));
                 }
                 
                 // Should call this instead and give the input to lua.

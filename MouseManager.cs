@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLua;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -7,16 +8,34 @@ using System.Threading.Tasks;
 
 namespace GNSAgain
 {
+    internal class MouseEvent : Event
+    {
+        public int button, presses;
+
+        public MouseEvent(Vector2 pos, string type, int button, int presses) : base(pos, type)
+        {
+            this.button = button;
+            this.presses = presses;
+        }
+    }
     internal static class MouseManager
     {
-        public static Vector2 MousePosition;
-        public static Vector2 MouseVelocity;
-        public static Vector2 LastMousePosition;
+        private static Vector2 MousePosition;
+        private static Vector2 MouseVelocity;
+        private static Vector2 LastMousePosition;
 
         // public static HeldMouseObject heldObject; // TODO: Impliment
 
-        public static int[] RepeatedStillClicks = [0, 0, 0];
+        public static int RepeatedStillClicks = 0;
+        public static int RepeatedStillClicksButton = 0;
         private static float _repeatClickTimer = 0;
+
+        [LuaMethod("rl.mouse")]
+        private static Vector2 getMousePosition() => MousePosition;
+        [LuaMethod("rl.mouse")]
+        private static Vector2 getMouseVelocity() => MouseVelocity;
+        [LuaMethod("rl.mouse")]
+        private static Vector2 getLastMousePosition() => LastMousePosition;
 
         public static void Update()
         {
@@ -26,20 +45,32 @@ namespace GNSAgain
             MouseVelocity = MousePosition - LastMousePosition;
 
             if (LastMousePosition != MousePosition)
-                RepeatedStillClicks = [0, 0, 0];
+            {
+                RepeatedStillClicks = 0;
+                LuaHandler.SendEvent(new Event(MousePosition, "mousemoved"));
+                // for textbox i will need to hook into that so that you can drag
+                // even when not hovering the mouse over the textbox?
+            }
 
-            for (int i = 0; i < RepeatedStillClicks.Length; i++)
+            for (int i = 0; i < 3; i++)
             {
                 if (IsMouseButtonPressed((Raylib_cs.MouseButton)i))
                 {
-                    if (RepeatedStillClicks[i] == 0)
+                    if (RepeatedStillClicksButton != i)
                     {
-                        RepeatedStillClicks = [0, 0, 0];
+                        RepeatedStillClicks = 0;
+                        RepeatedStillClicksButton = i;
                     }
 
-                    RepeatedStillClicks[i]++;
+                    RepeatedStillClicks++;
+
+                    LuaHandler.SendEvent(new MouseEvent(MousePosition, "mousepress", i, RepeatedStillClicks));
 
                     _repeatClickTimer = 0.6f; // Settings.AllowedRepeatClickTime;
+                }
+                else if (IsMouseButtonReleased((Raylib_cs.MouseButton)i))
+                {
+                    LuaHandler.SendEvent(new MouseEvent(MousePosition, "mouserelease", i, 1));
                 }
             }
 
@@ -48,11 +79,7 @@ namespace GNSAgain
             if (_repeatClickTimer < 0)
             {
                 _repeatClickTimer = 0;
-
-                for (int i = 0; i < RepeatedStillClicks.Length; i++)
-                {
-                    RepeatedStillClicks[i] = 0;
-                }
+                RepeatedStillClicks = 0;
             }
         }
     }

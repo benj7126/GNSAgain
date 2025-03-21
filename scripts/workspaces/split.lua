@@ -1,4 +1,4 @@
-local DropInto = require("workspaces.dropInto")
+local DropInto = require("workspaces.workspace")
 local Split = DropInto:new()
 
 function Split:new(workspace)
@@ -33,8 +33,22 @@ function Split:update()
     end
 end
 
+function Split:propagateEvent(event)
+    event:passed(self)
+    if self:handleEvent(event) then return end
+    self.workspaces[1]:propagateEvent(event)
+    --[[ above is temp solution
+    for _, elm in pairs(self.elements) do
+        if WithingBox(self.es.x, self.es.y, self.es.w, self.es.h, event.pos) then
+            elm:propagateEvent(event)
+            return
+        end
+    end]]
+end
+
+--[[
 function Split:dropInto(x, y, workspace)
     table.insert(self.workspaces, workspace) -- for now
-end
+end]]
 
 return Split

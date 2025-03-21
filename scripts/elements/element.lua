@@ -59,6 +59,13 @@ end
 
 local Element = {}
 
+function Element:from() --          i do from because i cant afford to override
+    local element = {}  --          any methods "subclassing"
+    setmetatable(element, self) --  would also be a waste to add the variables to a class, no?
+    self.__index = self
+    return element
+end
+
 function Element:new()
     local element = {}
     setmetatable(element, self)
@@ -79,6 +86,7 @@ function Element:new()
 
     -- should somehow have code in this shit :/
     -- it should somehow be a string that i can load into an element so that i can edit it in the program
+    -- some thougths on code https://discord.com/channels/@me/768734775913086977/1351935935545217054
 
     -- apply a wrapper for pre and post calls and other relevant things - if i think of any
     -- might make stuff slower but we will see... (it would be quite convinient though)
@@ -94,5 +102,18 @@ end
 function Element:draw() end
 
 function Element:update() end
+
+function Element:propagateEvent(event)
+    event:passed(self)
+    if self:handleEvent(event) then return end
+    for _, elm in pairs(self.elements) do
+        if WithingBox(elm.es.x, elm.es.y, elm.es.w, elm.es.h, event.pos) then
+            elm:propagateEvent(event)
+            return
+        end
+    end
+end
+
+function Element:handleEvent(event) return false end -- didnt "consume" the event -> dont want to block
 
 return Element

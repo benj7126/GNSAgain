@@ -2,21 +2,24 @@
 using GNSUsingCS;
 using KeraLua;
 using NLua;
-using System.ComponentModel;
-using System.IO;
+using System.Numerics;
 using System.Reflection;
-using System.Reflection.Emit;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
-using System.Text.RegularExpressions;
-using static GNSAgain.LuaHandler;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GNSAgain
 {
     internal class LuaMethod : Attribute { public LuaMethod(params string[] path) { this.path = path; } internal string[] path = []; }
+    internal class Event(Vector2 pos, string type) {
+        public List<LuaTable> chain = [];
+        public Vector2 pos = pos;
+        public string type = type;
+        public void passed(LuaTable obj) { chain.Add(obj); }
+    }
+
     internal static class LuaHandler
     {
-        private static NLua.Lua L;
+        public static NLua.Lua L;
         private static Dictionary<string, string> Modules;
         private static List<string> CustomMethods; // CS methods
 
@@ -167,6 +170,25 @@ namespace GNSAgain
         internal static void CoreDraw()
         {
             CallFromPath("CoreDraw");
+        }
+
+        internal static void SendEvent(object @event)
+        {
+            CallFromPath("CorePropagateEvent", @event);
+        }
+
+        internal static void FakeEvent(List<LuaTable> fakeEventOrder, Event @event)
+        {
+            foreach (LuaTable luaTable in fakeEventOrder)
+            {
+                if (luaTable["handleEvent"] is NLua.LuaFunction func)
+                {
+                    bool consumed = (bool)func.Call(luaTable, @event)[0];
+
+                    if (consumed)
+                        return;
+                }
+            }
         }
     }
 }

@@ -21,6 +21,8 @@ namespace GNSAgain
             while (!WindowShouldClose())
             {
                 // Update
+                MouseManager.Update();
+                InputManager.Update();
                 LuaHandler.CoreUpdate();
 
                 // Draw
