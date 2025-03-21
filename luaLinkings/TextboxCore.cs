@@ -61,6 +61,21 @@ namespace GNSAgain.luaLinkings
             currentByte += byteCount;
         }
 
+        [LuaMethod("rl")] // takes a string; but only looks at the first char.
+
+        unsafe static public float getCharWidth(string c, string fontName, int fontSize, float spacing)
+        {
+            Font font = FontManager.getFont(fontName, fontSize);
+            float scaleFactor = fontSize / (float)font.BaseSize;
+
+            int byteCount = 0;
+            
+            int codepoint = GetCodepointNext(c.ToUtf8Buffer().AsPointer(), &byteCount);
+            int codepointIndex = GetGlyphIndex(font, codepoint);
+
+            return (font.Glyphs[codepointIndex].AdvanceX == 0 ? (float)font.Recs[codepointIndex].Width : (float)font.Glyphs[codepointIndex].AdvanceX) * scaleFactor + spacing;
+        }
+
         unsafe private float GetCodepointWidth(int idx)
         {
             return (font.Glyphs[idx].AdvanceX == 0 ? (float)font.Recs[idx].Width : (float)font.Glyphs[idx].AdvanceX) * scaleFactor + spacing;
@@ -109,6 +124,7 @@ namespace GNSAgain.luaLinkings
             */
         }
     }
+    
 
     internal class TextboxCore
     {

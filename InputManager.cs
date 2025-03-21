@@ -24,8 +24,8 @@ namespace GNSUsingCS
     internal class KeyboardEvent : Event
     {
         public int key;
-        public List<KeyAddition> additions;
-        public KeyboardEvent(int key, List<KeyAddition> additions) : base(new(), "specialKey")
+        public List<int> additions;
+        public KeyboardEvent(int key, List<int> additions) : base(new(), "specialKey")
         {
             this.key = key;
             this.additions = additions;
@@ -73,15 +73,15 @@ namespace GNSUsingCS
                 return;
             }
 
-            List<KeyAddition> additions = [];
+            List<int> additions = [];
             if (IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl))
-                additions.Add(KeyAddition.Ctrl);
+                additions.Add((int)KeyAddition.Ctrl);
 
             if (IsKeyDown(KeyboardKey.LeftAlt) || IsKeyDown(KeyboardKey.RightAlt))
-                additions.Add(KeyAddition.Alt);
+                additions.Add((int)KeyAddition.Alt);
 
             if (IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift))
-                additions.Add(KeyAddition.Shift);
+                additions.Add((int)KeyAddition.Shift);
 
             // Character input
 
@@ -104,7 +104,7 @@ namespace GNSUsingCS
                 {
                     // _inputObject.IncommingSpecialKey((KeyboardKey)k, additions);
                     LuaHandler.FakeEvent(_fakeEventOrder, new KeyboardEvent(k, additions));
-                    //_heldRepeatTimer = Settings.FirstRepeatKeyTime;
+                    _heldRepeatTimer = 0.4f; // FirstRepeatKeyTime
                     _specialHeldKey = (KeyboardKey)k;
                 }
 

@@ -34,7 +34,7 @@ Etiam vehicula, lorem mollis laoreet tristique, leo ex tristique risus, quis var
     local resize = label.resize
     label.resize = function(self, ...)
         resize(self, ...)
-        self:prepTB(self.es.x, self.es.y, self.es.w, self.es.h)
+        self:prepTB()
     end
 
     return label
@@ -63,7 +63,7 @@ function LabelBuilder:InsertBuffer(lineBuffer, codepointBuffer)
     end
 end
 
-function Label:prepTB(x, y, w, h)
+function Label:prepTB()
     self.lines = {}
 
     local CpC = rl.getCodepointCounter(self.text, self.fontName, self.fontSize, self.spacing)
@@ -82,11 +82,17 @@ function Label:prepTB(x, y, w, h)
             LB:InsertBuffer(lineBuffer, codepointBuffer)
             codepointBuffer = {}
 
-            LB:InsertBuffer(lineBuffer, {{32, 0}}) -- insert space with no width at end for making it work well, iirc
+            --LB:InsertBuffer(lineBuffer, {{32, 0}}) -- insert space with no width at end for making it work well, iirc
+                                                   -- might not mean anything...
+
+                                                   -- i will have to try without this and see if it works the same (after everything is up and running)
             table.insert(self.lines, lineBuffer)
             lineBuffer = {}
             codepointBufferWidth = 0
             lineWidth = 0
+            
+            LB:InsertBuffer(lineBuffer, {{32, 0}}) -- welp, its down here...
+                                                   -- it works here, so let it be
 
             LB.peakTextOffsetX = math.max(LB.peakTextOffsetX, LB.textOffsetX)
             LB.textOffsetX = 0
@@ -95,9 +101,9 @@ function Label:prepTB(x, y, w, h)
             codepointBufferWidth = codepointBufferWidth + charWidth
 
             -- 32 = ' ' | 9 = '\t'                   character(0) or no wrapping(2)
-            if codepoint == 32 or codepoint == 9 or self.wrapping == 0 or self.wrapping == 2 or lineWidth + nextCharWidth + codepointBufferWidth > w then
+            if codepoint == 32 or codepoint == 9 or self.wrapping == 0 or self.wrapping == 2 or lineWidth + nextCharWidth + codepointBufferWidth > self.es.w then
 
-                if lineWidth + nextCharWidth + codepointBufferWidth > w and self.wrapping ~= 2 and not (codepoint == 32 or codepoint == 9) then
+                if lineWidth + nextCharWidth + codepointBufferWidth > self.es.w and self.wrapping ~= 2 and not (codepoint == 32 or codepoint == 9) then
                     -- if word wrapping
                     if self.wrapping == 1 and lineWidth ~= 0 then
                         table.insert(self.lines, lineBuffer)
