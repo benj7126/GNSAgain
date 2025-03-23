@@ -21,6 +21,7 @@ namespace GNSAgain.luaLinkings
             a["rec"] = DrawRectangle;
             a["vec"] = (float x, float y) => new Vector2(x, y);
             a["drawTextCodepoint"] = DrawTextCodepoint;
+            a["isShiftDown"] = () => IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift);
         }
 
         [LuaMethod(["rl"])]

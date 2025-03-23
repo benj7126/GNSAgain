@@ -32,7 +32,6 @@ function Textbox:new()
     tb.heldMode = 0; -- SelectTextChar-1, SelectTextWord-2, SelectTextLine-3
 
     tb.savedCursorVisualX = -1;
-    tb.savedCursorVisualY = -1;
     tb.cursorPosition = 0;
 
     tb.highlightPosition = -1;
@@ -50,13 +49,43 @@ local function InBetween(val, v1, v2)
     end
 end
 
-function Textbox:placeCursorOnLineAt(vec, line, curIndex, forceEOL)
+function Textbox:correctCusorVisual()
+    local label = self.elements[1]
+
+    local curIndex = 0
+    local textOffsetY = 0
+    local textOffsetX = 0
+
+    for _, line in pairs(label.lines) do
+        if curIndex + #line >= self.cursorPosition then
+            for _, char in pairs(line) do
+                if self.cursorPosition == curIndex then
+                    self.cursorVisualX = textOffsetX
+                    self.cursorVisualY = textOffsetY
+                    return
+                end
+    
+                curIndex = curIndex + 1
+                textOffsetX = textOffsetX + char.width;
+            end
+            
+            self.cursorVisualX = textOffsetX
+            self.cursorVisualY = textOffsetY
+            return
+        end
+
+        curIndex = curIndex + #line
+        textOffsetY = textOffsetY + label.fontSize + label.lineSpacing;
+    end
+end
+
+function Textbox:placeCursorOnLineAt(vec, line, curIndex)
     local label = self.elements[1]
     -- local spacing = label.spacing
     local textOffsetX = label.es.x
 
     for _, char in pairs(line) do
-        if textOffsetX + char.width*0.5 > vec.X and not forceEOL then -- textOffsetX + char.width - (char.width - spacing)/2
+        if textOffsetX + char.width*0.5 > vec.X then -- textOffsetX + char.width - (char.width - spacing)/2
             self.cursorVisualX = textOffsetX
             self.cursorPosition = curIndex
             return
@@ -70,18 +99,24 @@ function Textbox:placeCursorOnLineAt(vec, line, curIndex, forceEOL)
     self.cursorPosition = curIndex
 end
 
-function Textbox:placeCursorAt(vec, forceEOL)
+-- outOfBoundsFrontEnd makes it so that if its out of bounds, it will place at start (if above) or end (if below)
+function Textbox:placeCursorAt(vec, outOfBoundsStartEnd) -- forceEOL, been replaced by 'correctCusorVisual'
     local label = self.elements[1]
-    forceEOL = forceEOL or false
+    outOfBoundsStartEnd = outOfBoundsStartEnd or false
 
     local curIndex = 0
 
     local yLine = math.floor((vec.Y - label.es.y) / (label.fontSize + label.lineSpacing))
 
     if yLine < 0 then
-        self.cursorVisualX = label.es.x
         self.cursorVisualY = label.es.y
-        self.cursorPosition = 0
+
+        if outOfBoundsStartEnd then -- or not label.lines[1] then | theres always 1 line (if its been calculated)
+            self.cursorVisualX = label.es.x
+            self.cursorPosition = 0
+        else
+            self:placeCursorOnLineAt(vec, label.lines[1], curIndex, false)
+        end
         return
     end
 
@@ -90,23 +125,27 @@ function Textbox:placeCursorAt(vec, forceEOL)
         if label.lines[i+1] then
             curIndex = curIndex + #label.lines[i]
         else
+            if outOfBoundsStartEnd  then
+                forceEOL = true
+            end
+            
             self.cursorVisualY = (i-1) * (label.fontSize + label.lineSpacing)
-            self:placeCursorOnLineAt(vec, label.lines[i], curIndex, forceEOL)
+            self:placeCursorOnLineAt(vec, label.lines[i], curIndex)
+
             return
         end
     end
 
     self.cursorVisualY = (yLine) * (label.fontSize + label.lineSpacing)
-    self:placeCursorOnLineAt(vec, label.lines[yLine+1], curIndex, forceEOL)
+    self:placeCursorOnLineAt(vec, label.lines[yLine+1], curIndex)
 end
 
 function Textbox:draw()
-    
+    local label = self.elements[1]
+
     local curIndex = 0
     local textOffsetY = 0
     local textOffsetX = 0
-
-    local label = self.elements[1]
 
     for _, line in pairs(label.lines) do
         for _, char in pairs(line) do
@@ -133,16 +172,20 @@ function Textbox:backspace()
     local label = self.elements[1]
     
     if self.cursorPosition ~= 0 then
-        local toRem = label.text:sub(self.cursorPosition, self.cursorPosition)
+        -- local toRem = label.text:sub(self.cursorPosition, self.cursorPosition)
 
         label.text = label.text:sub(1, self.cursorPosition-1) .. label.text:sub(self.cursorPosition+1, #label.text)
 
+        self.cursorPosition = self.cursorPosition - 1
+        --[[
         if toRem == "\n" then
-            self:placeCursorAt(rl.vec(0, self.cursorVisualY - (label.fontSize + label.lineSpacing)/2), true)
+            self.cursorPosition = self.cursorPosition - 1
+            self:correctCusorVisual()
+            -- self:placeCursorAt(rl.vec(0, self.cursorVisualY - (label.fontSize + label.lineSpacing)/2), true)
         else
             self.cursorVisualX = self.cursorVisualX - rl.getCharWidth(toRem, label.fontName, label.fontSize, label.spacing)
             self.cursorPosition = self.cursorPosition - 1
-        end
+        end]]
     end
 end
 
@@ -168,12 +211,28 @@ function Textbox:left()
     if self.cursorPosition ~= 0 then
         local movePast = label.text:sub(self.cursorPosition, self.cursorPosition)
 
+        self.cursorPosition = self.cursorPosition - 1
+
         if movePast == "\n" then
-            self:placeCursorAt(rl.vec(0, self.cursorVisualY - (label.fontSize + label.lineSpacing)/2), true)
+            self:correctCusorVisual()
+            -- self:placeCursorAt(rl.vec(0, self.cursorVisualY - (label.fontSize + label.lineSpacing)/2), true)
         else
             self.cursorVisualX = self.cursorVisualX - rl.getCharWidth(movePast, label.fontName, label.fontSize, label.spacing)
-            self.cursorPosition = self.cursorPosition - 1
         end
+    end
+end
+
+function Textbox:deleteSelectedArea()
+    local label = self.elements[1]
+
+    if self.highlightPosition ~= -1 then
+        if self.highlightPosition < self.cursorPosition then
+            local hp = self.highlightPosition
+            self.highlightPosition = self.cursorPosition
+            self.cursorPosition = hp
+        end
+
+        label.text = label.text:sub(1, self.cursorPosition) .. label.text:sub(self.highlightPosition+1, #label.text)
     end
 end
 
@@ -183,11 +242,13 @@ function Textbox:handleEvent(event)
     if event.type == "mousepress" then
         rl.setInput(event)
 
+        self.highlightPosition = -1
+        self.savedCursorVisualX = -1
+        
         self.heldMode = math.fmod(event.presses-1, 3)+1
         if self.heldMode == 1 then
             self:placeCursorAt(event.pos)
         end
-        self.highlightPosition = -1
 
         PreNextEvent("mouserelease", function(nEvent)
             self.heldMode = 0
@@ -215,19 +276,55 @@ function Textbox:handleEvent(event)
             return
         end
 
+        if self.highlightPosition ~= -1 then
+            self:deleteSelectedArea()
+            self.highlightPosition = -1
+        end
+        
+        self.savedCursorVisualX = -1
+
         label.text = label.text:sub(1, self.cursorPosition) .. event.key .. label.text:sub(self.cursorPosition+1, #label.text)
         self.cursorPosition = self.cursorPosition + 1
 
-        self.cursorVisualX = self.cursorVisualX + rl.getCharWidth(event.key, label.fontName, label.fontSize, label.spacing)
+        -- self.cursorVisualX = self.cursorVisualX + rl.getCharWidth(event.key, label.fontName, label.fontSize, label.spacing)
         label:prepTB() -- TODO: ideally i would like to only update from the change, and as little as possible
+        self:correctCusorVisual() -- well, what if wrap..?
         -- self:updateVisualCursor() should be able to calculate the location on the run.
     elseif event.type == "specialKey" then
-        if event.key == 261 then -- delete
-            self:ctrlRepeatAction(self.delete, event.additions, false, true)
-            label:prepTB()
-        elseif event.key == 259 then -- backspace
-            self:ctrlRepeatAction(self.backspace, event.additions, true);
-            label:prepTB()
+        if event.key >= 262 and event.key <= 265 then -- any movement key
+            if rl.isShiftDown() and self.highlightPosition == -1 then
+                self.highlightPosition = self.cursorPosition
+            elseif not rl.isShiftDown() then
+                self.highlightPosition = -1
+            end
+        end
+
+        if event.key == 261 or event.key == 259 or event.key == 257 then
+            local wasHighlight = self.highlightPosition
+
+            if self.highlightPosition == -1 then
+                if event.key == 261 then -- delete
+                    self:ctrlRepeatAction(self.delete, event.additions, false, true)
+                elseif event.key == 259 then -- backspace
+                    self:ctrlRepeatAction(self.backspace, event.additions, true);
+                end
+            else
+                self:deleteSelectedArea()
+                self.highlightPosition = -1
+            end
+            
+            if event.key == 257 then -- enter
+                label.text = label.text:sub(1, self.cursorPosition) .. "\n" .. label.text:sub(self.cursorPosition+1, #label.text)
+    
+                self.cursorVisualY = self.cursorVisualY + label.fontSize + label.lineSpacing
+                self.cursorVisualX = 0
+                self.cursorPosition = self.cursorPosition + 1
+            end
+
+            label:prepTB() -- ideally from self.cursorPosition until "out of bounds"
+            if wasHighlight ~= -1 or event.key == 259 then -- backspace needs either this or with a pos, this is probabbly better.
+                self:correctCusorVisual()
+            end
             -- self:updateVisualCursor()
         elseif event.key == 263 then -- left
             self:ctrlRepeatAction(self.left, event.additions, true);
@@ -235,14 +332,19 @@ function Textbox:handleEvent(event)
         elseif event.key == 262 then -- right
             self:ctrlRepeatAction(self.right, event.additions, false);
             -- self:updateVisualCursor()
-        elseif event.key == 257 then -- enter
-            label.text = label.text:sub(1, self.cursorPosition) .. "\n" .. label.text:sub(self.cursorPosition+1, #label.text)
+        end
+        if event.key == 264 or event.key == 265 then
+            if self.savedCursorVisualX == -1 then
+                self.savedCursorVisualX = self.cursorVisualX
+            end
 
-            self.cursorVisualY = self.cursorVisualY + label.fontSize + label.lineSpacing
-            self.cursorVisualX = 0
-            self.cursorPosition = self.cursorPosition + 1
-            
-            label:prepTB()
+            if event.key == 265 then -- up
+                self:placeCursorAt(rl.vec(self.savedCursorVisualX, self.cursorVisualY - (label.fontSize + label.lineSpacing)/2), true)
+            elseif event.key == 264 then -- down
+                self:placeCursorAt(rl.vec(self.savedCursorVisualX, self.cursorVisualY + (label.fontSize + label.lineSpacing)*1.5), true)
+            end
+        else
+            self.savedCursorVisualX = -1 -- if you click a key that is not up or down; use actual x for this
         end
     end
     return false
@@ -281,16 +383,12 @@ function Textbox:ctrlRepeatAction(action, additions, left, useLength)
         local lastc = self.elements[1].text:sub(self.cursorPosition + offset, self.cursorPosition + offset)
 
         action(self)
-        print("2")
 
         local newc = self.elements[1].text:sub(self.cursorPosition + offset, self.cursorPosition + offset)
-
-        print(lastc, newc)
 
         if self:isChangeOfType(lastc, newc) then
             return false
         end
-        print("3")
     end
 
     return true
