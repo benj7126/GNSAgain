@@ -8,20 +8,45 @@ function RegisterClass(metatable, className)
     classList[className] = metatable
 end
 
+local function elmWorkspaceListHelper(list, ami)
+    local highestNumber = 0;
+
+    local newList = {}
+
+    for i, subObj in pairs(list) do
+        ami:enter("e-" .. i)
+        ami:writeString("src", CreateStringFromObject(subObj, ami))
+        ami:exit()
+
+        if type(i) == "number" then
+            if i > highestNumber then highestNumber = i end
+        else
+            table.insert(newList, i)
+        end
+    end
+    
+    return {highestNumber, newList}
+end
+
 local function breakdownObject(obj, indent, ami) -- this could be used for any object, really.
     local string = ""
 
     local MT = getmetatable(obj)
     local saveRules = {} -- might make the values mean things? probably not though...
     if MT and MT.saveRules then MT:saveRules(saveRules) else saveRules = nil end
+    
+    local onlyNumberIndex = true
+    for i, _ in pairs(obj) do if type(i) ~= "number" then onlyNumberIndex = false end end
 
     for i, v in pairs(obj) do
         if saveRules then
             if not saveRules[i] then v = nil end -- if not in save, dont save it.
         end
+
+        -- also check against base somehow...
         
         local t = type(v)
-        
+
         if t == "table" then
             v = "{"..breakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
         elseif t == "userdata" then
@@ -39,28 +64,19 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
         end
 
         if v then
-            string = string .. "\n" .. indent .. i .. " = " .. v .. ","
+            if onlyNumberIndex then
+                string = string .. "\n" .. indent .. v .. ","
+            else
+                string = string .. "\n" .. indent .. i .. " = " .. v .. ","
+            end
         end
     end
 
     if obj.elements then
-        for i, subObj in pairs(obj.elements) do
-            ami:enter("e-" .. tostring(i))
-            ami:writeString("src", CreateStringFromObject(subObj, ami))
-            ami:exit()
-        end
-        
-        string = string .. "\n" .. indent .. "elements = " .. #obj.elements .. ","
+        string = string .. "\n" .. indent .. "elements = {"..breakdownObject(elmWorkspaceListHelper(obj.elements, ami), indent.."\t", ami) .. "\n"..indent.."},"
     end
-
     if obj.workspaces then
-        for i, subObj in pairs(obj.workspaces) do
-            ami:enter("w-" .. tostring(i))
-            ami:writeString("src", CreateStringFromObject(subObj, ami))
-            ami:exit()
-        end
-        
-        string = string .. "\n" .. indent .. "workspaces = " .. #obj.workspaces .. ","
+        string = string .. "\n" .. indent .. "workspaces = {"..breakdownObject(elmWorkspaceListHelper(obj.workspaces, ami), indent.."\t", ami) .. "\n"..indent.."},"
     end
 
     return string:sub(0, #string-1)
@@ -106,6 +122,29 @@ function LoadObject(path)
     return elm
 end
 
+local function elmWorkspaceSetupListHelper(list, ami)
+    local objCount = list[1]
+    local objList = list[2]
+
+    local newObjects = {}
+
+    for i = 1, objCount do
+        ami:enter("e-"..i)
+        local obj = CreateObjectFromAMI(ami)
+        newObjects[i] = obj
+        ami:exit()
+    end
+
+    for _, v in pairs(objList) do
+        ami:enter("e-"..v)
+        local obj = CreateObjectFromAMI(ami)
+        newObjects[v] = obj
+        ami:exit()
+    end
+
+    return newObjects
+end
+
 function CreateObjectFromAMI(ami)
     local str = ami:readString("src")
     local chunk, err = load(str)
@@ -127,33 +166,13 @@ function CreateObjectFromAMI(ami)
     -- try to treat the elements weirdly and it would be better to just trust the save file...
     -- but this also means that there should be a way to not append elements when creating an element with :new().
     local newElements = nil
-    if modifications.elements and type(modifications.elements) == "number" then -- should this be some id/uuid instead of idx???
-        local elementCount = modifications.elements
-        modifications.elements = nil
-        
-        newElements = {}
-
-        for i = 1, elementCount do
-            ami:enter("e-"..tostring(i))
-            local obj = CreateObjectFromAMI(ami)
-            newElements[i] = obj
-            ami:exit()
-        end
+    if modifications.elements then
+        newElements = elmWorkspaceSetupListHelper(modifications.elements, ami)
     end
 
     local newWorkspaces = nil
-    if modifications.workspaces and type(modifications.workspaces) == "number" then -- should this be some id/uuid instead of idx???
-        local workspaceCount = modifications.workspaces
-        modifications.workspaces = nil
-        
-        newWorkspaces = {}
-
-        for i = 1, workspaceCount do
-            ami:enter("w-"..tostring(i))
-            local obj = CreateObjectFromAMI(ami)
-            newWorkspaces[i] = obj
-            ami:exit()
-        end
+    if modifications.workspaces then
+        newWorkspaces = elmWorkspaceSetupListHelper(modifications.workspaces, ami)
     end
 
     local useOwnElementList = false

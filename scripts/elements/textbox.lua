@@ -19,14 +19,14 @@ function Textbox:new(forLoad)
 
     local draw = require("modules.draw.reverseDraw")
     tb.draw = function(...)
-        if not tb.elements[1].lines then
+        if not tb.elements.label.lines then
             -- write to console thing that this wants a label as its first child
             return
         end
 
         draw(...)
 
-        local label = tb.elements[1]
+        local label = tb.elements.label
         rl.rec(label.es.x + Textbox.cursorVisualX, label.es.y + Textbox.cursorVisualY, 1, label.fontSize, tb.cursorColor);
     end
 
@@ -40,7 +40,7 @@ function Textbox:new(forLoad)
 
         label.text = ""
 
-        table.insert(tb.elements, label)
+        tb.elements.label = label
     end
 
     return tb
@@ -54,7 +54,7 @@ local function InBetween(val, v1, v2)
 end
 
 function Textbox:correctCusorVisual()
-    local label = self.elements[1]
+    local label = self.elements.label
 
     local curIndex = 0
     local textOffsetY = 0
@@ -84,7 +84,7 @@ function Textbox:correctCusorVisual()
 end
 
 function Textbox:placeCursorOnLineAt(vec, line, curIndex)
-    local label = self.elements[1]
+    local label = self.elements.label
     -- local spacing = label.spacing
     local textOffsetX = label.es.x
 
@@ -105,7 +105,7 @@ end
 
 -- outOfBoundsFrontEnd makes it so that if its out of bounds, it will place at start (if above) or end (if below)
 function Textbox:placeCursorAt(vec, outOfBoundsStartEnd) -- forceEOL, been replaced by 'correctCusorVisual'
-    local label = self.elements[1]
+    local label = self.elements.label
     outOfBoundsStartEnd = outOfBoundsStartEnd or false
 
     local curIndex = 0
@@ -147,7 +147,7 @@ function Textbox:placeCursorAt(vec, outOfBoundsStartEnd) -- forceEOL, been repla
 end
 
 function Textbox:draw()
-    local label = self.elements[1]
+    local label = self.elements.label
 
     local curIndex = 0
     local textOffsetY = 0
@@ -169,13 +169,13 @@ function Textbox:draw()
 end
 
 function Textbox:delete()
-    local label = self.elements[1]
+    local label = self.elements.label
 
     label.text = label.text:sub(1, Textbox.cursorPosition) .. label.text:sub(Textbox.cursorPosition+2, #label.text)
 end
 
 function Textbox:backspace()
-    local label = self.elements[1]
+    local label = self.elements.label
     
     if Textbox.cursorPosition ~= 0 then
         label.text = label.text:sub(1, Textbox.cursorPosition-1) .. label.text:sub(Textbox.cursorPosition+1, #label.text)
@@ -185,8 +185,8 @@ function Textbox:backspace()
 end
 
 function Textbox:right()
-    local label = self.elements[1]
-    if Textbox.cursorPosition ~= #self.elements[1].text then
+    local label = self.elements.label
+    if Textbox.cursorPosition ~= #self.elements.label.text then
         local movePast = label.text:sub(Textbox.cursorPosition+1, Textbox.cursorPosition+1)
         
         if movePast ~= "\n" then
@@ -201,7 +201,7 @@ function Textbox:right()
 end
 
 function Textbox:left()
-    local label = self.elements[1]
+    local label = self.elements.label
 
     if Textbox.cursorPosition ~= 0 then
         local movePast = label.text:sub(Textbox.cursorPosition, Textbox.cursorPosition)
@@ -218,7 +218,7 @@ function Textbox:left()
 end
 
 function Textbox:deleteSelectedArea()
-    local label = self.elements[1]
+    local label = self.elements.label
 
     if Textbox.highlightPosition ~= -1 then
         if Textbox.highlightPosition < Textbox.cursorPosition then
@@ -232,7 +232,7 @@ function Textbox:deleteSelectedArea()
 end
 
 function Textbox:handleEvent(event)
-    local label = self.elements[1]
+    local label = self.elements.label
 
     if event.type == "mousepress" then
         rl.setInput(event)
@@ -364,22 +364,22 @@ function Textbox:ctrlRepeatAction(action, additions, left, useLength)
         return position ~= Textbox.cursorPosition + offset
     end
 
-    local lastSize = #self.elements[1].text + 1
+    local lastSize = #self.elements.label.text + 1
     if useLength then
         condition = function ()
-            return #self.elements[1].text ~= lastSize
+            return #self.elements.label.text ~= lastSize
         end
     end
 
     while condition() do
         position = Textbox.cursorPosition + offset
-        lastSize = #self.elements[1].text
+        lastSize = #self.elements.label.text
 
-        local lastc = self.elements[1].text:sub(Textbox.cursorPosition + offset, Textbox.cursorPosition + offset)
+        local lastc = self.elements.label.text:sub(Textbox.cursorPosition + offset, Textbox.cursorPosition + offset)
 
         action(self)
 
-        local newc = self.elements[1].text:sub(Textbox.cursorPosition + offset, Textbox.cursorPosition + offset)
+        local newc = self.elements.label.text:sub(Textbox.cursorPosition + offset, Textbox.cursorPosition + offset)
 
         if self:isChangeOfType(lastc, newc) then
             return false

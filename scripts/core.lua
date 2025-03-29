@@ -20,7 +20,7 @@ local topWorkspace = require("workspaces.stacked"):new(elmspace)
 local test = require("elements.textbox"):new()
 test.es.width.percent = 0.4
 test.es.height.percent = 1
-test.elements[1].wrapping = 2
+test.elements.label.wrapping = 2
 
 local b = require("elements.button"):new()
 b.es.left.percent = 0.5
@@ -28,7 +28,8 @@ b.es.width.pixels = 60
 b.es.height.pixels = 24
 b.es.vAlign = 0.5
 
--- SaveObject(b, "test")
+SaveObject(b, "test")
+
 -- SaveObject(b, "test2")
 
 local loadedB = LoadObject("test")
@@ -37,6 +38,7 @@ elmspace.elements = {test, loadedB}
 
 SaveObject(topWorkspace, "w-test")
 topWorkspace = LoadObject("w-test")
+
 
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is

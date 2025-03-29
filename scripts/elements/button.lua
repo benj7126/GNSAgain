@@ -13,7 +13,7 @@ function Button:new(forLoad)
         local box = Box:new()
         box.es.width.percent = 1
         box.es.height.percent = 1
-        table.insert(b.elements, box)
+        b.elements.bg = box
 
         local label = Label:new()
         label.es.width.percent = 1
@@ -22,7 +22,7 @@ function Button:new(forLoad)
         label.wrapping = 2 -- no wrapping
         label.text = "click me" -- should have something that could tell me how big this is
                                 -- or something that makes the box match the size automatically. 
-        table.insert(b.elements, label)
+        b.elements.label = label
     end
 
     return b
