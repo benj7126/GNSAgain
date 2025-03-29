@@ -137,7 +137,7 @@ namespace GNSAgain
 
         private static FieldInfo reference = typeof(LuaBase).GetField("_Reference", BindingFlags.NonPublic | BindingFlags.Instance);
         [LuaMethod]
-        private static void print(params object[] objs)
+        private static void print(params object[] objs) // this doesnt work too well...
         {
             printS("\t", objs);
         }

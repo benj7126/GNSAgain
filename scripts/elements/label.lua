@@ -1,14 +1,22 @@
 local Element = require("elements.element")
 local Label = Element:from()
 
-function Label:new()
+function Label:saveRules(rules)
+    Element:saveRules(rules)
+    rules["text"] = 0
+    rules["fontName"] = 0
+    rules["fontSize"] = 0
+    rules["color"] = 0
+    rules["spacing"] = 0
+    rules["lineSpacing"] = 0
+    rules["textWidth"] = 0
+    rules["wrapping"] = 0
+end
+
+function Label:new(forLoad)
     local label = Element.new(Label)
 
-    label.text = [[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sagittis tempor sapien, a pharetra est iaculis varius. Proin tempor mauris non consectetur iaculis. Proin a orci convallis erat finibus pharetra. Mauris elit massa, vehicula eget rutrum at, elementum eget purus. Mauris congue ex nisi, sed suscipit lacus posuere auctor. Donec quis aliquam urna. Morbi et imperdiet mauris. Donec sit amet aliquam ipsum. Cras egestas massa vulputate mauris imperdiet condimentum. Sed pharetra ex a odio placerat, quis rhoncus nibh porta. Praesent sed sem in mauris gravida tempus. In viverra nibh vitae sapien scelerisque malesuada. Maecenas a euismod turpis.
-Suspendisse euismod semper ultricies. Ut et odio purus. Mauris augue mauris, bibendum vitae auctor non, consequat aliquam quam. Curabitur eget vehicula odio. Morbi ut est ultricies, maximus mi eget, sollicitudin elit. Morbi sit amet odio ac ante egestas faucibus. Nam blandit lorem luctus arcu finibus dignissim. Sed facilisis commodo consectetur. Suspendisse mattis venenatis mattis. Mauris blandit malesuada imperdiet.
-Praesent ac magna ac mi commodo aliquet. Cras in scelerisque purus. Integer at felis sed nulla semper sollicitudin eu quis mi. Sed tristique, turpis et eleifend scelerisque, lorem ipsum semper lorem, vitae elementum nulla urna a lacus. Sed feugiat metus et urna convallis, nec aliquam massa pellentesque. Integer pellentesque erat eget sapien dapibus blandit. Donec egestas tempus odio, at mollis mauris. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam rhoncus consectetur turpis vitae facilisis. Etiam finibus libero auctor ornare cursus. Vestibulum posuere sodales eros a eleifend. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin elit lectus, dictum et metus at, tempor aliquet magna. Fusce et ligula in velit dignissim efficitur in tempor nibh.
-Nulla semper nibh eu dolor pellentesque, a tristique nulla porttitor. Morbi vitae sem vitae sem rhoncus rhoncus at in tellus. Proin orci diam, placerat id laoreet ac, rutrum sed odio. Etiam sed sollicitudin metus. Curabitur rutrum, purus nec rhoncus tristique, leo metus mattis massa, at ultrices risus nunc sed orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus maximus dui facilisis tincidunt finibus. Donec vel dolor eget neque suscipit feugiat. Morbi tellus nunc, varius a mauris accumsan, cursus porttitor sem. Sed id nulla pretium, venenatis velit egestas, blandit ex. Fusce vitae leo id mauris eleifend tempus. Cras vestibulum eros a lectus lobortis varius. Pellentesque sit amet enim elementum, ultrices lectus ullamcorper, dignissim nibh. Mauris a porttitor orci. Mauris sed rhoncus tortor.
-Etiam vehicula, lorem mollis laoreet tristique, leo ex tristique risus, quis varius orci elit mollis est. Phasellus semper dignissim est, sed rutrum felis eleifend quis. Cras mattis et risus et volutpat. Fusce et scelerisque arcu. Duis fringilla placerat vestibulum. Maecenas pharetra nisl in ante pellentesque facilisis. Aliquam imperdiet mauris vitae molestie malesuada. Curabitur a lectus vel est dictum molestie non vel urna. Morbi tortor mi, congue eu enim nec, aliquet viverra justo. Vestibulum nec dui vitae leo eleifend rhoncus et nec lectus. Vivamus auctor felis quam, sed blandit velit finibus nec. In odio turpis, hendrerit vel sem in, faucibus aliquet nunc. Vivamus eget erat vitae dolor faucibus dapibus. Quisque suscipit finibus laoreet]]
+    label.text = ""
     label.lines = {}
 
     label.fontName = ""
@@ -36,6 +44,8 @@ Etiam vehicula, lorem mollis laoreet tristique, leo ex tristique risus, quis var
         resize(self, ...)
         self:prepTB()
     end
+    
+    RegisterClass(Label, "Label")
 
     return label
 end

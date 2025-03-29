@@ -3,25 +3,28 @@ local Box = require("elements.box")
 local Label = require("elements.label")
 local Button = Element:from()
 
-function Button:new(workspace)
-    local b = Element.new(Button)
+function Button:new(forLoad)
+    local b = Element.new(Button, forLoad)
 
     b.pressed = {false, false, false}
 
-    local box = Box:new()
-    box.es.width.percent = 1
-    box.es.height.percent = 1
-    table.insert(b.elements, box)
+    if not forLoad then
+        local box = Box:new()
+        box.es.width.percent = 1
+        box.es.height.percent = 1
+        table.insert(b.elements, box)
 
-    local label = Label:new()
-    label.es.width.percent = 1
-    label.es.height.percent = 1
-    
-    label.wrapping = 2 -- no wrapping
-    label.text = "click me" -- should have something that could tell me how big this is
-                            -- or something that makes the box match the size automatically. 
+        local label = Label:new()
+        label.es.width.percent = 1
+        label.es.height.percent = 1
 
-    table.insert(b.elements, label)
+        label.wrapping = 2 -- no wrapping
+        label.text = "click me" -- should have something that could tell me how big this is
+                                -- or something that makes the box match the size automatically. 
+        table.insert(b.elements, label)
+    end
+
+    RegisterClass(Button, "Button")
 
     return b
 end

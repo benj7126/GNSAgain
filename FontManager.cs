@@ -11,7 +11,6 @@ namespace GNSUsingCS
     {
         private static readonly Dictionary<string, Font> _fontMap = [];
 
-
         [LuaMethod(["rl"])]
         public static Font getFont(string fontName, int size, TextureFilter filter = TextureFilter.Point)
         {

@@ -19,6 +19,16 @@ end
 
 local ElementStyle = {}
 
+function ElementStyle:saveRules(rules)
+    rules["left"] = 0
+    rules["top"] = 0
+    rules["width"] = 0
+    rules["height"] = 0
+    
+    rules["vAlign"] = 0
+    rules["hAlign"] = 0
+end
+
 function ElementStyle:new()
     local es = {}
     setmetatable(es, self)
@@ -66,13 +76,21 @@ function Element:from() --          i do from because i cant afford to override
     return element
 end
 
-function Element:new()
+function Element:saveRules(rules)
+    rules["es"] = 0
+end
+
+local id = 0
+function Element:new(forLoad) -- tmp solution?
     local element = {}
     setmetatable(element, self)
     self.__index = self
     
     element.es = ElementStyle:new()
     element.elements = {}
+
+    element.id = id -- element id test thing
+    id = id + 1
 
     element.draw = require("modules.draw.defaultDraw") -- when making an inspector there should be and element that
                                                        -- lets you add a bunch of functions and switch between them
@@ -91,6 +109,9 @@ function Element:new()
     -- apply a wrapper for pre and post calls and other relevant things - if i think of any
     -- might make stuff slower but we will see... (it would be quite convinient though)
     -- could be used for error messages, maby?
+
+    RegisterClass(Element, "Element")
+
     return element
 end
 

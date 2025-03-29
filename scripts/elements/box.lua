@@ -1,10 +1,19 @@
 local Element = require("elements.element")
 local Box = Element:from()
 
-function Box:new(workspace)
-    local b = Element.new(Box)
+function Box:saveRules(rules)
+    Element:saveRules(rules)
+    rules["color"] = 0
+end
 
-    b.color = rl.color(255, 255, 0)
+function Box:new(forLoad)
+    local b = Element.new(Box, forLoad)
+
+    b.color = rl.color(255, 255, 0) -- i should have color
+                                    -- and vec, tbf, be lua tables.
+                                    -- cuz easier saving and loading.
+
+    RegisterClass(Box, "Box")
 
     return b
 end
