@@ -8,13 +8,13 @@ function RegisterClass(metatable, className)
     classList[className] = metatable
 end
 
-local function elmWorkspaceListHelper(list, ami)
+local function elmWorkspaceListHelper(list, ami, char)
     local highestNumber = 0;
 
     local newList = {}
 
     for i, subObj in pairs(list) do
-        ami:enter("e-" .. i)
+        ami:enter(char.."-" .. i)
         ami:writeString("src", CreateStringFromObject(subObj, ami))
         ami:exit()
 
@@ -73,10 +73,10 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
     end
 
     if obj.elements then
-        string = string .. "\n" .. indent .. "elements = {"..breakdownObject(elmWorkspaceListHelper(obj.elements, ami), indent.."\t", ami) .. "\n"..indent.."},"
+        string = string .. "\n" .. indent .. "elements = {"..breakdownObject(elmWorkspaceListHelper(obj.elements, ami, "e"), indent.."\t", ami) .. "\n"..indent.."},"
     end
     if obj.workspaces then
-        string = string .. "\n" .. indent .. "workspaces = {"..breakdownObject(elmWorkspaceListHelper(obj.workspaces, ami), indent.."\t", ami) .. "\n"..indent.."},"
+        string = string .. "\n" .. indent .. "workspaces = {"..breakdownObject(elmWorkspaceListHelper(obj.workspaces, ami, "w"), indent.."\t", ami) .. "\n"..indent.."},"
     end
 
     return string:sub(0, #string-1)
@@ -122,21 +122,21 @@ function LoadObject(path)
     return elm
 end
 
-local function elmWorkspaceSetupListHelper(list, ami)
+local function elmWorkspaceSetupListHelper(list, ami, char)
     local objCount = list[1]
     local objList = list[2]
 
     local newObjects = {}
 
     for i = 1, objCount do
-        ami:enter("e-"..i)
+        ami:enter(char.."-"..i)
         local obj = CreateObjectFromAMI(ami)
         newObjects[i] = obj
         ami:exit()
     end
 
     for _, v in pairs(objList) do
-        ami:enter("e-"..v)
+        ami:enter(char.."-"..v)
         local obj = CreateObjectFromAMI(ami)
         newObjects[v] = obj
         ami:exit()
@@ -167,12 +167,12 @@ function CreateObjectFromAMI(ami)
     -- but this also means that there should be a way to not append elements when creating an element with :new().
     local newElements = nil
     if modifications.elements then
-        newElements = elmWorkspaceSetupListHelper(modifications.elements, ami)
+        newElements = elmWorkspaceSetupListHelper(modifications.elements, ami, "e")
     end
 
     local newWorkspaces = nil
     if modifications.workspaces then
-        newWorkspaces = elmWorkspaceSetupListHelper(modifications.workspaces, ami)
+        newWorkspaces = elmWorkspaceSetupListHelper(modifications.workspaces, ami, "w")
     end
 
     local useOwnElementList = false
