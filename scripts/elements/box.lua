@@ -1,5 +1,6 @@
 local Element = require("elements.element")
 local Box = Element:from()
+RegisterClass(Box, "Box")
 
 function Box:saveRules(rules)
     Element:saveRules(rules)
@@ -12,8 +13,6 @@ function Box:new(forLoad)
     b.color = rl.color(255, 255, 0) -- i should have color
                                     -- and vec, tbf, be lua tables.
                                     -- cuz easier saving and loading.
-
-    RegisterClass(Box, "Box")
 
     return b
 end

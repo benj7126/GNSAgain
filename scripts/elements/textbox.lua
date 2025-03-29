@@ -1,6 +1,7 @@
 local Element = require("elements.element")
 local Label = require("elements.label")
 local Textbox = Element:from()
+RegisterClass(Textbox, "Textbox")
 
 -- "static variables"
 Textbox.cursorVisualX = 0;
@@ -41,8 +42,6 @@ function Textbox:new(forLoad)
 
         table.insert(tb.elements, label)
     end
-    
-    RegisterClass(Textbox, "Textbox")
 
     return tb
 end

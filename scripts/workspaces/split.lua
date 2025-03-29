@@ -1,5 +1,6 @@
 local DropInto = require("workspaces.workspace")
 local Split = DropInto:new()
+RegisterClass(Split, "W-Split")
 
 function Split:new(workspace)
     local split = DropInto.new(Split)

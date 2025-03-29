@@ -1,4 +1,7 @@
 local Workspace = {}
+RegisterClass(Workspace, "W-Workspace")
+
+function Workspace:saveRules(rules) end
 
 function Workspace:new()
     local workspace = {}

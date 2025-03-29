@@ -68,6 +68,7 @@ function ElementStyle:contains(x, y)
 end
 
 local Element = {}
+RegisterClass(Element, "Element")
 
 function Element:from() --          i do from because i cant afford to override
     local element = {}  --          any methods "subclassing"
@@ -109,8 +110,6 @@ function Element:new(forLoad) -- tmp solution?
     -- apply a wrapper for pre and post calls and other relevant things - if i think of any
     -- might make stuff slower but we will see... (it would be quite convinient though)
     -- could be used for error messages, maby?
-
-    RegisterClass(Element, "Element")
 
     return element
 end

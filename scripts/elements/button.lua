@@ -2,6 +2,7 @@ local Element = require("elements.element")
 local Box = require("elements.box")
 local Label = require("elements.label")
 local Button = Element:from()
+RegisterClass(Button, "Button")
 
 function Button:new(forLoad)
     local b = Element.new(Button, forLoad)
@@ -23,8 +24,6 @@ function Button:new(forLoad)
                                 -- or something that makes the box match the size automatically. 
         table.insert(b.elements, label)
     end
-
-    RegisterClass(Button, "Button")
 
     return b
 end

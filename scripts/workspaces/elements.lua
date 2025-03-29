@@ -1,5 +1,6 @@
 local Workspace = require("workspaces.workspace")
 local Elements = Workspace:new()
+RegisterClass(Elements, "W-Elements")
 
 function Elements:new(workspace)
     local elms = Workspace.new(Elements)

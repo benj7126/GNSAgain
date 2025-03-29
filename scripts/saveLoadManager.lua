@@ -8,14 +8,14 @@ function RegisterClass(metatable, className)
     classList[className] = metatable
 end
 
-local function breakdownObject(elm, indent, ami) -- this could be used for any object, really.
+local function breakdownObject(obj, indent, ami) -- this could be used for any object, really.
     local string = ""
 
-    local MT = getmetatable(elm)
+    local MT = getmetatable(obj)
     local saveRules = {} -- might make the values mean things? probably not though...
     if MT and MT.saveRules then MT:saveRules(saveRules) else saveRules = nil end
 
-    for i, v in pairs(elm) do
+    for i, v in pairs(obj) do
         if saveRules then
             if not saveRules[i] then v = nil end -- if not in save, dont save it.
         end
@@ -23,7 +23,7 @@ local function breakdownObject(elm, indent, ami) -- this could be used for any o
         local t = type(v)
         
         if t == "table" then
-            v = "{"..breakdownObject(v, indent.."\t") .. "\n"..indent.."}"
+            v = "{"..breakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
         elseif t == "userdata" then
             v = nil
         elseif t == "function" then
@@ -43,34 +43,44 @@ local function breakdownObject(elm, indent, ami) -- this could be used for any o
         end
     end
 
-    if elm.elements then
-        for i, subElm in pairs(elm.elements) do
-            ami:enter(tostring(i))
-            ami:writeString("elm.src", CreateStringFromElement(subElm, ami))
+    if obj.elements then
+        for i, subObj in pairs(obj.elements) do
+            ami:enter("e-" .. tostring(i))
+            ami:writeString("src", CreateStringFromObject(subObj, ami))
             ami:exit()
         end
         
-        string = string .. "\n" .. indent .. "elements = " .. #elm.elements .. ","
+        string = string .. "\n" .. indent .. "elements = " .. #obj.elements .. ","
+    end
+
+    if obj.workspaces then
+        for i, subObj in pairs(obj.workspaces) do
+            ami:enter("w-" .. tostring(i))
+            ami:writeString("src", CreateStringFromObject(subObj, ami))
+            ami:exit()
+        end
+        
+        string = string .. "\n" .. indent .. "workspaces = " .. #obj.workspaces .. ","
     end
 
     return string:sub(0, #string-1)
 end
 
-function CreateStringFromElement(elm, ami)
-    if not classList[getmetatable(elm)] then
+function CreateStringFromObject(obj, ami)
+    if not classList[getmetatable(obj)] then
         -- error about saving element
         return nil
     end
 
-    local string = "return {" .. breakdownObject(elm, "\t", ami)
-    local output = string .. '\n}, "' .. classList[getmetatable(elm)] .. '"'
+    local string = "return {" .. breakdownObject(obj, "\t", ami)
+    local output = string .. '\n}, "' .. classList[getmetatable(obj)] .. '"'
 
     return output
 end
 
-function SaveElement(elm, path)
+function SaveObject(obj, path)
     local ami = getAMI(path, 2) -- tmp
-    ami:writeString("elm.src", CreateStringFromElement(elm, ami))
+    ami:writeString("src", CreateStringFromObject(obj, ami))
     ami:close()
 end
 
@@ -88,17 +98,16 @@ local function applyModification(table, mod)
     end
 end
 
-function LoadElement(path)
+function LoadObject(path)
     local ami = getAMI(path, 3) -- tmp
-    local elm = CreateElementFromAMI(ami)
+    local elm = CreateObjectFromAMI(ami)
     ami:close()
 
     return elm
 end
 
-function CreateElementFromAMI(ami)
-    local str = ami:readString("elm.src")
-    print(str, "elm.src")
+function CreateObjectFromAMI(ami)
+    local str = ami:readString("src")
     local chunk, err = load(str)
     if not chunk then
         print(err)
@@ -125,24 +134,42 @@ function CreateElementFromAMI(ami)
         newElements = {}
 
         for i = 1, elementCount do
-            ami:enter(tostring(i))
-            local elm = CreateElementFromAMI(ami)
-            newElements[i] = elm
+            ami:enter("e-"..tostring(i))
+            local obj = CreateObjectFromAMI(ami)
+            newElements[i] = obj
+            ami:exit()
+        end
+    end
+
+    local newWorkspaces = nil
+    if modifications.workspaces and type(modifications.workspaces) == "number" then -- should this be some id/uuid instead of idx???
+        local workspaceCount = modifications.workspaces
+        modifications.workspaces = nil
+        
+        newWorkspaces = {}
+
+        for i = 1, workspaceCount do
+            ami:enter("w-"..tostring(i))
+            local obj = CreateObjectFromAMI(ami)
+            newWorkspaces[i] = obj
             ami:exit()
         end
     end
 
     local useOwnElementList = false
     if newElements then useOwnElementList = true end
-    local elm = classList[class]:new(useOwnElementList)
+    local obj = classList[class]:new(useOwnElementList)
 
-    applyModification(elm, modifications)
+    applyModification(obj, modifications)
 
     if newElements then
-        elm.elements = newElements
+        obj.elements = newElements
+    end
+    if newWorkspaces then
+        obj.workspaces = newWorkspaces
     end
 
-    return elm
+    return obj
 end
 
 -- should only really work for workspaces

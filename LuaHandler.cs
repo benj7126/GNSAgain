@@ -29,7 +29,6 @@ namespace GNSAgain
             L.State.Encoding = Encoding.GetEncoding("ISO-8859-1");
 
             loadModules();
-            RaylibMethods.Setup(L);
             setupMethods();
             
             L.DoString(Modules["core"]); // should be a setting - default module name?
@@ -80,6 +79,8 @@ namespace GNSAgain
         }
         private static void setupMethods()
         {
+            RaylibMethods.Setup(L);
+
             CustomMethods = [];
 
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())

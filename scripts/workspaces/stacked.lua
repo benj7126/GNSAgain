@@ -1,5 +1,6 @@
 local DropInto = require("workspaces.workspace")
 local Stacked = DropInto:new()
+RegisterClass(Stacked, "W-Stacked")
 
 function Stacked:new(workspace)
     local stacked = DropInto.new(Stacked)

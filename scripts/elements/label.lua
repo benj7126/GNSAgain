@@ -1,5 +1,6 @@
 local Element = require("elements.element")
 local Label = Element:from()
+RegisterClass(Label, "Label")
 
 function Label:saveRules(rules)
     Element:saveRules(rules)
@@ -44,8 +45,6 @@ function Label:new(forLoad)
         resize(self, ...)
         self:prepTB()
     end
-    
-    RegisterClass(Label, "Label")
 
     return label
 end
