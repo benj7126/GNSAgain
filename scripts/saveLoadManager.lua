@@ -79,6 +79,10 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
         string = string .. "\n" .. indent .. "workspaces = {"..breakdownObject(elmWorkspaceListHelper(obj.workspaces, ami, "w"), indent.."\t", ami) .. "\n"..indent.."},"
     end
 
+    if obj.extraSave then
+        obj:extraSave()
+    end
+
     return string:sub(0, #string-1)
 end
 
@@ -116,6 +120,9 @@ end
 
 function LoadObject(path)
     local ami = getAMI(path, 3) -- tmp
+
+    if not ami then return ami end
+
     local elm = CreateObjectFromAMI(ami)
     ami:close()
 

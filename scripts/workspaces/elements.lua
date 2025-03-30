@@ -5,24 +5,10 @@ RegisterClass(Elements, "W-Elements")
 function Elements:new(workspace)
     local elms = Workspace.new(Elements)
 
-    -- tmp
-    local elm = require("elements.box"):new()
-    elm.es.width.percent = 0.9
-    elm.es.height.percent = 0.9
-    elm.es.vAlign = 0.5
-    elm.es.hAlign = 0.5
-    elms.elements = {} -- {elm}
+    self.saveAlone = true
 
-    local elm2 = require("elements.box"):new()
-    elm2.es.width.percent = 0.9
-    elm2.es.height.percent = 0.9
-    elm2.es.vAlign = 0.5
-    elm2.es.hAlign = 0.5
-
-    elm2.color = rl.color(255, 0, 0)
-
-    table.insert(elm.elements, elm2)
-
+    self.elements = {}
+    self.workspaces = {}
     self.sizes = nil -- if i dont use it ig i should just kill it, no?
 
     return elms

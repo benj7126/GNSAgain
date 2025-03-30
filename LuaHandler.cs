@@ -136,6 +136,12 @@ namespace GNSAgain
             """);
         }
 
+        [LuaMethod]
+        private static string getUUID()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
         private static FieldInfo reference = typeof(LuaBase).GetField("_Reference", BindingFlags.NonPublic | BindingFlags.Instance);
         [LuaMethod]
         private static void print(params object[] objs) // this doesnt work too well...

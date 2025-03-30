@@ -108,6 +108,14 @@ namespace GNSUsingCS
         }
 
         [LuaMethod()]
-        private static ArchiveModificationInstance getAMI(string path, int fileMode) => new ArchiveModificationInstance(path, fileMode);
+        private static ArchiveModificationInstance? getAMI(string path, int fileMode)
+        {
+            string fullPath = Path.Combine(SaveAndLoadManager.RelativePath, path);
+
+            if ((fileMode == 3 || fileMode == 5 || fileMode == 6) && !File.Exists(fullPath))
+                return null;
+
+            return new ArchiveModificationInstance(path, fileMode);
+        }
     }
 }

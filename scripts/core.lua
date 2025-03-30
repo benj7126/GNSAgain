@@ -14,30 +14,53 @@ require("saveLoadManager")
 -- templates specify what elements are where and some most values
 -- while notes based on templates mainly modify things like text.
 
-local elmspace = require("workspaces.elements"):new()
-local topWorkspace = require("workspaces.stacked"):new(elmspace)
+-- things need to be required once to acutally be loaded...
+-- might want to cheat that and just 'load' everything at startup?
+local Reference = require("workspaces.reference")
+local Elements = require("workspaces.elements")
+local Stacked = require("workspaces.stacked")
+local Textbox = require("elements.textbox")
+local Button = require("elements.button")
 
-local test = require("elements.textbox"):new()
-test.es.width.percent = 0.4
-test.es.height.percent = 1
-test.elements.label.wrapping = 2
+--[[
+local loaded = LoadObject("core")
+if not loaded then
+    local elmspace = Elements:new()
+    loaded = Stacked:new(elmspace)
+    
+    local test = Textbox:new()
+    test.es.width.percent = 0.4
+    test.es.height.percent = 1
+    test.elements.label.wrapping = 2
+    
+    local b = Button:new()
+    b.es.left.percent = 0.5
+    b.es.width.pixels = 60
+    b.es.height.pixels = 24
+    b.es.vAlign = 0.5
+end
 
-local b = require("elements.button"):new()
-b.es.left.percent = 0.5
-b.es.width.pixels = 60
-b.es.height.pixels = 24
-b.es.vAlign = 0.5
+local topWorkspace = loaded
+]]
 
-SaveObject(b, "test")
+local loaded = LoadObject("core")
+if not loaded then
+    loaded = Reference:new()
 
--- SaveObject(b, "test2")
+    loaded:resize(0, 0, 1200, 800)
+    
+    local test = Textbox:new()
+    test.es.width.percent = 1
+    test.es.height.percent = 1
+    test.elements.label.wrapping = 2
+    
+    loaded.workspace.elements = {test}
+else
+    print(loaded.targetId, "e")
+end
+print(loaded.targetId)
 
-local loadedB = LoadObject("test")
-
-elmspace.elements = {test, loadedB}
-
-SaveObject(topWorkspace, "w-test")
-topWorkspace = LoadObject("w-test")
+local topWorkspace = loaded
 
 
 function WithingBox(x, y, w, h, pos)
@@ -60,6 +83,10 @@ function CoreDraw()
 end
 
 function CorePropagateEvent(event)
+    if event.type == "mousepress" then
+        SaveObject(topWorkspace, "core")
+    end
+
     PreEventCalled(event)
     topWorkspace:propagateEvent(event)
     PostEventCalled(event)
