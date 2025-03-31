@@ -21,28 +21,71 @@ local Elements = require("workspaces.elements")
 local Stacked = require("workspaces.stacked")
 local Textbox = require("elements.textbox")
 local Button = require("elements.button")
+local List = require("elements.list")
+local Box = require("elements.box")
 
---[[
 local loaded = LoadObject("core")
 if not loaded then
     local elmspace = Elements:new()
     loaded = Stacked:new(elmspace)
-    
+
     local test = Textbox:new()
     test.es.width.percent = 0.4
     test.es.height.percent = 1
     test.elements.label.wrapping = 2
-    
-    local b = Button:new()
-    b.es.left.percent = 0.5
-    b.es.width.pixels = 60
-    b.es.height.pixels = 24
-    b.es.vAlign = 0.5
+
+    local list = List:new()
+    list.es.left.percent = 0.5
+    list.es.width.pixels = 200
+    list.es.height.percent = 24
+
+    list.cols = 4
+    list.type = 1
+
+    local box = Box:new()
+    box.es.left.percent = 0.5
+    box.es.width.pixels = 200
+    box.es.height.percent = 24
+    box.color = rl.color(0, 0, 255)
+
+    for i = 1, 30 do
+        local b = Button:new()
+        b.es.height.pixels = 30
+
+        if i == 1 then
+            b.elements[2].textSizeFit = true
+            b.elements[2].xCenter = true
+            b.elements[2].yCenter = true
+        elseif i == 2 then
+            b.elements[2].textSizeFit = false
+            b.elements[2].xCenter = true
+            b.elements[2].yCenter = true
+        elseif i == 3 then
+            b.elements[2].textSizeFit = false
+            b.elements[2].xCenter = false
+            b.elements[2].yCenter = true
+        elseif i == 4 then
+            b.elements[2].textSizeFit = false
+            b.elements[2].xCenter = false
+            b.elements[2].yCenter = false
+        elseif i == 5 then
+            b.elements[2].textSizeFit = true
+            b.elements[2].xCenter = false
+            b.elements[2].yCenter = false
+        elseif i == 6 then
+            b.es.height.pixels = 50
+            b.elements[2].textSizeFit = true
+        end
+
+        table.insert(list.elements, b)
+    end
+
+    elmspace.elements = {box, test, list}
 end
 
 local topWorkspace = loaded
-]]
 
+--[[
 local loaded = LoadObject("core")
 if not loaded then
     loaded = Reference:new()
@@ -62,6 +105,7 @@ print(loaded.targetId)
 
 local topWorkspace = loaded
 
+]]
 
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is
@@ -84,7 +128,7 @@ end
 
 function CorePropagateEvent(event)
     if event.type == "mousepress" then
-        SaveObject(topWorkspace, "core")
+        -- SaveObject(topWorkspace, "core")
     end
 
     PreEventCalled(event)

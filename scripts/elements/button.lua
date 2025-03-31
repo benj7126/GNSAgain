@@ -13,16 +13,20 @@ function Button:new(forLoad)
         local box = Box:new()
         box.es.width.percent = 1
         box.es.height.percent = 1
-        b.elements.bg = box
+        -- b.elements.bg = box
+        table.insert(b.elements, box) -- sadly need it to be ordered
 
-        local label = Label:new()
+        local label = Label:new() -- need a way to center text.
         label.es.width.percent = 1
         label.es.height.percent = 1
 
+        label.xCenter = true
+        label.yCenter = true
         label.wrapping = 2 -- no wrapping
         label.text = "click me" -- should have something that could tell me how big this is
                                 -- or something that makes the box match the size automatically. 
-        b.elements.label = label
+        -- b.elements.label = label
+        table.insert(b.elements, label)
     end
 
     return b

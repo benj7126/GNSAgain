@@ -126,7 +126,11 @@ function Element:update() end
 function Element:propagateEvent(event)
     event:passed(self)
     if self:handleEvent(event) then return end
-    for _, elm in pairs(self.elements) do
+    local elmLoop = {}
+    for _, elm in pairs(self.elements) do table.insert(elmLoop, elm) end
+
+    for i = #elmLoop, 1, -1 do
+        local elm = elmLoop[i]
         if WithingBox(elm.es.x, elm.es.y, elm.es.w, elm.es.h, event.pos) then
             elm:propagateEvent(event)
             return

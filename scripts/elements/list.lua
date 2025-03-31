@@ -1,0 +1,71 @@
+local Element = require("elements.element")
+local List = Element:from()
+RegisterClass(List, "List")
+
+function List:new(forLoad)
+    local list = Element.new(List, forLoad)
+
+    list.xSpacing = 10
+    list.ySpacing = 10
+    list.cols = 1
+
+    list.type = 1
+    -- 1 -> one offset
+    -- 2 -> on offset pr col
+    -- larger than 2 -> enoforce height of "type-2", and one offset
+    -- should have above be a selection of two choices and other, and have other be an int. somehow
+
+    return list
+end
+
+function List:resize(x, y, w, h)
+    self.es:recalculate(x, y, w, h)
+
+    local offsetY = 0
+    if self.type == 2 then
+        offsetY = {}
+        for i = 1, self.cols do table.insert(offsetY, 0) end
+    end
+
+    local largestH = 0
+    for i, elm in pairs(self.elements) do
+        elm.es.left.percent = 0
+        elm.es.top.percent = 0
+
+        elm.es.width.percent = 1 / self.cols
+        
+        elm.es.height.percent = 0
+        if self.type > 2 then
+            elm.es.height.pixels = self.type-2
+        end
+
+        local thisIdxY = i % self.cols
+        if self.cols > 1 then
+            elm.es.hAlign = 1 / (self.cols-1) * ((i-1) % self.cols)
+            elm.es.width.pixels = -self.xSpacing + self.xSpacing / self.cols
+        else
+            elm.es.width.pixels = 0
+        end
+
+        if self.type == 2 then
+            elm.es.top.pixels = offsetY[thisIdxY + 1]
+        else
+            elm.es.top.pixels = offsetY
+        end
+        elm.es.left.pixels = 0
+
+        elm:resize(self.es.x, self.es.y, self.es.w, self.es.h)
+
+        if self.type == 2 then
+            offsetY[thisIdxY + 1] = offsetY[thisIdxY + 1] + elm.es.h + self.ySpacing
+        else
+            largestH = math.max(largestH, elm.es.h)
+            if thisIdxY == 0 then
+                offsetY = offsetY + largestH + self.ySpacing
+                largestH = 0
+            end
+        end
+    end
+end
+
+return List

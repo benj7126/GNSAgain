@@ -28,7 +28,12 @@ function Label:new(forLoad)
     label.spacing = 0.2
     label.lineSpacing = 0.2
 
+    label.xCenter = false
+    label.yCenter = false
     label.textWidth = 0
+    label.textHeight = 0
+
+    label.textSizeFit = false
 
     label.wrapping = 1 --[[
     enum Wrapping
@@ -145,27 +150,61 @@ function Label:prepTB()
     lineWidth = lineWidth + codepointBufferWidth
     codepointBufferWidth = 0
 
+    self.textHeight = #self.lines * (self.fontSize + self.lineSpacing) - self.lineSpacing
     self.textWidth = math.max(LB.peakTextOffsetX, LB.textOffsetX)
+
+    if self.textSizeFit then
+        local widthRatio = self.es.w / self.textWidth
+        local heightRatio = self.es.h / self.textHeight
+
+        local newFontSize = 1
+        if widthRatio < heightRatio then -- adjust with width ratio
+            newFontSize = math.floor(self.fontSize * widthRatio)
+        else -- adjust with height ratio
+            newFontSize = math.floor(self.fontSize * heightRatio)
+        end
+
+        local actualRatio = newFontSize / self.fontSize
+        self.textHeight = self.textHeight * actualRatio
+        self.textWidth = self.textWidth * actualRatio
+
+        self.fontSize = newFontSize
+
+        for _, line in pairs(self.lines) do
+            for _, char in pairs(line) do
+                char.width = char.width * actualRatio
+            end
+        end
+    end
 end
 
 function Label:draw()
     local font = rl.getFont(self.fontName, self.fontSize);
 
+    local startX = 0
+    if self.xCenter then
+        startX = (self.es.w - self.textWidth) / 2
+    end
+    
     local textOffsetY = 0
-    local textOffsetX = 0
+    local textOffsetX = startX
+
+    if self.yCenter then
+        textOffsetY = (self.es.h - self.textHeight) / 2
+    end
 
     for _, line in pairs(self.lines) do
         for _, char in pairs(line) do
             -- dont draw invisible shit
             if char.codepoint ~= 32 and char.codepoint ~= 9 then
-                rl.drawTextCodepoint(font, char.codepoint, rl.vec(self.es.x + textOffsetX, self.es.y + textOffsetY), self.fontSize, self.color);
+                rl.drawTextCodepoint(font, char.codepoint, rl.vec(self.es.x + textOffsetX, self.es.y + textOffsetY), self.fontSize, self.color)
             end
 
-            textOffsetX = textOffsetX + char.width;
+            textOffsetX = textOffsetX + char.width
         end
 
-        textOffsetY = textOffsetY + self.fontSize + self.lineSpacing;
-        textOffsetX = 0;
+        textOffsetY = textOffsetY + self.fontSize + self.lineSpacing
+        textOffsetX = startX
     end
 end
 
