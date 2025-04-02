@@ -1,41 +1,30 @@
 local Element = require("elements.element")
 local Label = Element:from()
 RegisterClass(Label, "Label")
-
-function Label:saveRules(rules)
-    Element:saveRules(rules)
-    rules["text"] = 0
-    rules["fontName"] = 0
-    rules["fontSize"] = 0
-    rules["color"] = 0
-    rules["spacing"] = 0
-    rules["lineSpacing"] = 0
-    rules["textWidth"] = 0
-    rules["wrapping"] = 0
-end
+local VarSpec = require("varSpec")
 
 function Label:new(forLoad)
     local label = Element.new(Label)
 
-    label.text = ""
+    label.text = VarSpec:new("")
     label.lines = {}
 
-    label.fontName = ""
-    label.fontSize = 20
+    label.fontName = VarSpec:new("")
+    label.fontSize = VarSpec:new(20)
 
-    label.color = rl.color(0,0,0)
+    label.color = VarSpec:new(rl.color(0,0,0)) -- unsure if this actually works well
 
-    label.spacing = 0.2
-    label.lineSpacing = 0.2
+    label.spacing = VarSpec:new(0.2)
+    label.lineSpacing = VarSpec:new(0.2)
 
     label.xCenter = false
     label.yCenter = false
     label.textWidth = 0
     label.textHeight = 0
 
-    label.textSizeFit = false
+    label.textSizeFit = VarSpec:new(false)
 
-    label.wrapping = 1 --[[
+    label.wrapping = VarSpec:new(1) --[[
     enum Wrapping
     {
         CharWrapping, // normal(?) wrapping 0

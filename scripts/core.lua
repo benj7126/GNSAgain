@@ -24,6 +24,16 @@ local Button = require("elements.button")
 local List = require("elements.list")
 local Box = require("elements.box")
 
+-- tmp solution, want to make 'custom'
+-- things somehow, so that its not c#
+-- objects.
+-- And i want to find a better save solution.
+--[[local mt = getmetatable(rl.vec(0, 0))
+mt.saveAll = true
+local mt = getmetatable(rl.color(0, 0, 0))
+mt.saveAll = true]]
+-- annnd its user data, so it no work.
+
 local loaded = LoadObject("core")
 if not loaded then
     local elmspace = Elements:new()

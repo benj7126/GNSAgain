@@ -4,10 +4,6 @@ local Label = require("elements.label")
 local Selection = Element:from()
 RegisterClass(Selection, "Selection")
 
-function Selection:saveRules(rules)
-    Element:saveRules(rules)
-end
-
 function Selection:new(forLoad)
     local sel = Element.new(Selection, forLoad)
 

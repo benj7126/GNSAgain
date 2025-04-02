@@ -1,6 +1,4 @@
--- should generate and create element from string
--- use C# to read and write - so that it uses that
--- fancy zipfile-like structure
+local VarSpec = require("varSpec")
 
 local classList = {}
 function RegisterClass(metatable, className)
@@ -31,28 +29,42 @@ end
 local function breakdownObject(obj, indent, ami) -- this could be used for any object, really.
     local string = ""
 
-    local MT = getmetatable(obj)
-    local saveRules = {} -- might make the values mean things? probably not though...
-    if MT and MT.saveRules then MT:saveRules(saveRules) else saveRules = nil end
+    -- local MT = getmetatable(obj)
+    -- local saveRules = {} -- might make the values mean things? probably not though...
+    -- if MT and MT.saveRules then MT:saveRules(saveRules) else saveRules = nil end
     
     local onlyNumberIndex = true
     for i, _ in pairs(obj) do if type(i) ~= "number" then onlyNumberIndex = false end end
 
+
+    local saveAll = false
+    local MT = getmetatable(obj)
+    if MT == nil then
+        saveAll = true
+    elseif type(MT) == "table" and MT.saveAll then
+        saveAll = true
+    end
+
     for i, v in pairs(obj) do
-        if saveRules then
-            if not saveRules[i] then v = nil end -- if not in save, dont save it.
+        if not saveAll then
+            if getmetatable(v) == VarSpec and v.options.save == true then
+                v = v.value
+                i = i:sub(2, #i)
+            else
+                v = nil
+            end
         end
 
         -- also check against base somehow...
-        
+
         local t = type(v)
 
         if t == "table" then
             v = "{"..breakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
         elseif t == "userdata" then
-            v = nil
+            v = nil -- currently dont save userdata
         elseif t == "function" then
-            v = nil
+            v = nil -- currently dont save functions
         elseif t == "boolean" then
             if v then
                 v = "true"

@@ -1,15 +1,16 @@
 local Element = require("elements.element")
 local List = Element:from()
 RegisterClass(List, "List")
+local VarSpec = require("varSpec")
 
 function List:new(forLoad)
     local list = Element.new(List, forLoad)
 
-    list.xSpacing = 10
-    list.ySpacing = 10
-    list.cols = 1
+    list.xSpacing = VarSpec:new(10)
+    list.ySpacing = VarSpec:new(10)
+    list.cols = VarSpec:new(1)
 
-    list.type = 1
+    list.type = VarSpec:new(1)
     -- 1 -> one offset
     -- 2 -> on offset pr col
     -- larger than 2 -> enoforce height of "type-2", and one offset

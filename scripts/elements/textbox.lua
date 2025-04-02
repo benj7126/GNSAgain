@@ -2,6 +2,7 @@ local Element = require("elements.element")
 local Label = require("elements.label")
 local Textbox = Element:from()
 RegisterClass(Textbox, "Textbox")
+local VarSpec = require("varSpec")
 
 -- "static variables"
 Textbox.cursorVisualX = 0;
@@ -30,8 +31,8 @@ function Textbox:new(forLoad)
         rl.rec(label.es.x + Textbox.cursorVisualX, label.es.y + Textbox.cursorVisualY, 1, label.fontSize, tb.cursorColor);
     end
 
-    tb.highlightColor = rl.color(0, 0, 200, 100)
-    tb.cursorColor = rl.color(255, 150, 0)
+    tb.highlightColor = VarSpec:new(rl.color(0, 0, 200, 100))
+    tb.cursorColor = VarSpec:new(rl.color(255, 150, 0))
 
     if not forLoad then
         local label = Label:new()

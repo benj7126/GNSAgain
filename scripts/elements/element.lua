@@ -3,6 +3,7 @@
 
 local StyleDimension = {}
 
+StyleDimension.saveAll = true -- tmp solution
 function StyleDimension:new()
     local sd = {}
     setmetatable(sd, self)
@@ -19,6 +20,7 @@ end
 
 local ElementStyle = {}
 
+ElementStyle.saveAll = true -- tmp solution
 function ElementStyle:saveRules(rules)
     rules["left"] = 0
     rules["top"] = 0
@@ -77,17 +79,45 @@ function Element:from() --          i do from because i cant afford to override
     return element
 end
 
-function Element:saveRules(rules)
-    rules["es"] = 0
-end
+local VarSpec = require("varSpec")
 
 local id = 0
 function Element:new(forLoad) -- tmp solution?
     local element = {}
     setmetatable(element, self)
-    self.__index = self
+    self.__index = function(t, k)
+        local value = rawget(t, k)
+        
+        if not value then
+            value = rawget(t, "_"..k)
+            if value then value = value.value end
+        end
+
+        if value then
+            return value
+        end
+
+        return self[k]
+    end
+    self.__newindex = function (t, k, v)
+        local potentialVarSpec = rawget(t, "_"..k)
+        if potentialVarSpec then
+            potentialVarSpec.value = v
+            return
+        end
+
+        if getmetatable(v) == VarSpec then
+            rawset(t, "_"..k, v)
+            return
+        end
+
+        rawset(t, k, v)
+    end
     
-    element.es = ElementStyle:new()
+
+    -- intergrate 'VarSpecs' into __index and __newindex
+    
+    element.es = VarSpec:new(ElementStyle:new())
     element.elements = {}
 
     element.id = id -- element id test thing
