@@ -17,12 +17,19 @@ require("saveLoadManager")
 -- things need to be required once to acutally be loaded...
 -- might want to cheat that and just 'load' everything at startup?
 local Reference = require("workspaces.reference")
+local Selection = require("workspaces.selection")
 local Elements = require("workspaces.elements")
 local Stacked = require("workspaces.stacked")
 local Textbox = require("elements.textbox")
 local Button = require("elements.button")
 local List = require("elements.list")
 local Box = require("elements.box")
+
+
+--
+-- There are many places where i should probably sort tables.
+--
+
 
 -- tmp solution, want to make 'custom'
 -- things somehow, so that its not c#
@@ -31,10 +38,10 @@ local Box = require("elements.box")
 --[[local mt = getmetatable(rl.vec(0, 0))
 mt.saveAll = true
 local mt = getmetatable(rl.color(0, 0, 0))
-mt.saveAll = true]]
+mt.saveAll = true
 -- annnd its user data, so it no work.
 
-local loaded = LoadObject("core")
+local loaded = nil -- LoadObject("core")
 if not loaded then
     local elmspace = Elements:new()
     loaded = Stacked:new(elmspace)
@@ -93,29 +100,29 @@ if not loaded then
     elmspace.elements = {box, test, list}
 end
 
-local topWorkspace = loaded
+local topWorkspace = loaded]]
 
 --[[
 local loaded = LoadObject("core")
-if not loaded then
-    loaded = Reference:new()
 
-    loaded:resize(0, 0, 1200, 800)
-    
+if not loaded then
+    loaded =  Reference:new()
+
+    loaded:resize(0, 0, 1200, 800) -- to set the workspace to the correct value
+
     local test = Textbox:new()
     test.es.width.percent = 1
     test.es.height.percent = 1
     test.elements.label.wrapping = 2
-    
+
     loaded.workspace.elements = {test}
-else
-    print(loaded.targetId, "e")
 end
-print(loaded.targetId)
 
-local topWorkspace = loaded
+local topWorkspace = loaded]]
 
-]]
+local topWorkspace = Stacked:new()
+topWorkspace:addWorkspace(Selection:new())
+topWorkspace:addWorkspace(Selection:new())
 
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is
@@ -125,6 +132,7 @@ function WithingBox(x, y, w, h, pos)
 end
 
 function CoreUpdate()
+    -- print(test.elements.label.text)
     topWorkspace:update()
 
     -- tmp test for save and load
@@ -136,11 +144,11 @@ function CoreDraw()
     topWorkspace:draw()
 end
 
-function CorePropagateEvent(event)
-    if event.type == "mousepress" then
-        -- SaveObject(topWorkspace, "core")
-    end
+function Quitting()
+    SaveObject(topWorkspace, "core")
+end
 
+function CorePropagateEvent(event)
     PreEventCalled(event)
     topWorkspace:propagateEvent(event)
     PostEventCalled(event)

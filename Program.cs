@@ -33,8 +33,11 @@ namespace GNSAgain
                 EndDrawing();
             }
 
-            CloseWindow();
+            LuaHandler.Quitting();
 
+            // could probably make a loading animation thing if this ever takes a while.
+
+            CloseWindow();
         }
     }
 }

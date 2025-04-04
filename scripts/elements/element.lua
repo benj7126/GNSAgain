@@ -4,13 +4,13 @@
 local StyleDimension = {}
 
 StyleDimension.saveAll = true -- tmp solution
-function StyleDimension:new()
+function StyleDimension:new(p)
     local sd = {}
     setmetatable(sd, self)
     self.__index = self
     
-    sd.pixels, sd.percent = 0, 0.0
-
+    sd.pixels, sd.percent = 0, p
+    
     return sd
 end
 
@@ -36,11 +36,11 @@ function ElementStyle:new()
     setmetatable(es, self)
     self.__index = self
 
-    es.left = StyleDimension:new()
-    es.top = StyleDimension:new()
+    es.left = StyleDimension:new(0.0)
+    es.top = StyleDimension:new(0.0)
 
-    es.width = StyleDimension:new()
-    es.height = StyleDimension:new()
+    es.width = StyleDimension:new(1.0)
+    es.height = StyleDimension:new(1.0)
 
     es.x, es.y, es.w, es.h = 0, 0, 0, 0
 
@@ -69,14 +69,19 @@ function ElementStyle:contains(x, y)
     end
 end
 
+local VarSpecMT = require("varSpecMT")
+
 local Element = {}
 RegisterClass(Element, "Element")
+VarSpecMT(Element) -- applies to element(this)
 
-function Element:from() --          i do from because i cant afford to override
-    local element = {}  --          any methods "subclassing"
-    setmetatable(element, self) --  would also be a waste to add the variables to a class, no?
+function Element:from() --          i do 'from' because i dont want to override
+    local newMT = {}  --          any methods "subclassing"
+    setmetatable(newMT, self) --  would also be a waste to add the variables to a class, no?
     self.__index = self
-    return element
+
+    VarSpecMT(newMT) -- applies to all sub-elements, only once and not on creation.
+    return newMT
 end
 
 local VarSpec = require("varSpec")
@@ -85,38 +90,9 @@ local id = 0
 function Element:new(forLoad) -- tmp solution?
     local element = {}
     setmetatable(element, self)
-    self.__index = function(t, k)
-        local value = rawget(t, k)
-        
-        if not value then
-            value = rawget(t, "_"..k)
-            if value then value = value.value end
-        end
-
-        if value then
-            return value
-        end
-
-        return self[k]
-    end
-    self.__newindex = function (t, k, v)
-        local potentialVarSpec = rawget(t, "_"..k)
-        if potentialVarSpec then
-            potentialVarSpec.value = v
-            return
-        end
-
-        if getmetatable(v) == VarSpec then
-            rawset(t, "_"..k, v)
-            return
-        end
-
-        rawset(t, k, v)
-    end
-    
 
     -- intergrate 'VarSpecs' into __index and __newindex
-    
+
     element.es = VarSpec:new(ElementStyle:new())
     element.elements = {}
 

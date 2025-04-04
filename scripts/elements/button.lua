@@ -9,6 +9,8 @@ function Button:new(forLoad)
 
     b.pressed = {false, false, false}
 
+    -- should i have a border?
+
     if not forLoad then
         local box = Box:new()
         box.es.width.percent = 1
@@ -26,10 +28,14 @@ function Button:new(forLoad)
         label.text = "click me" -- should have something that could tell me how big this is
                                 -- or something that makes the box match the size automatically. 
         -- b.elements.label = label
-        table.insert(b.elements, label)
+        table.insert(b.elements, label) -- might want some way to force order on named things...
     end
 
     return b
+end
+
+function Button:press(button)
+    -- run some function of the code that i dont have yet, ig.
 end
 
 function Button:handleEvent(event)
@@ -48,7 +54,7 @@ function Button:handleEvent(event)
         return true
     elseif event.type == "mouserelease" then
         if self.pressed[event.button] then -- pressed automatically set to false from PostNextEvent above
-            print("button pressed with; " .. event.button)
+            self:press(event.button)
         end
     end
     return false

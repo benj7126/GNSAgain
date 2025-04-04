@@ -6,6 +6,18 @@ function RegisterClass(metatable, className)
     classList[className] = metatable
 end
 
+function GetClasses()
+    local ret = {}
+    for i, v in pairs(classList) do
+        if type(i) == "string" then ret[i] = v end
+    end
+    return ret
+end
+
+function GetClassName(metatable)
+    return classList[metatable]
+end
+
 local function elmWorkspaceListHelper(list, ami, char)
     local highestNumber = 0;
 

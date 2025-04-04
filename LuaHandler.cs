@@ -30,7 +30,7 @@ namespace GNSAgain
 
             loadModules();
             setupMethods();
-            
+
             L.DoString(Modules["core"]); // should be a setting - default module name?
         }
 
@@ -177,6 +177,11 @@ namespace GNSAgain
         internal static void CoreDraw()
         {
             CallFromPath("CoreDraw");
+        }
+
+        internal static void Quitting()
+        {
+            CallFromPath("Quitting");
         }
 
         internal static void SendEvent(object @event)

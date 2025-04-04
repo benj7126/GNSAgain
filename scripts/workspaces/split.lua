@@ -1,11 +1,12 @@
-local DropInto = require("workspaces.workspace")
-local Split = DropInto:new()
+local Workspace = require("workspaces.workspace")
+local Selection = require("workspaces.selection")
+local Split = Workspace:new()
 RegisterClass(Split, "W-Split")
 
 function Split:new(workspace)
-    local split = DropInto.new(Split)
+    local split = Workspace.new(Split)
 
-    split.workspaces = {workspace}
+    split.workspaces = {workspace or Selection:new()}
     split.horizontal = true
     split.splits = {}
     split.sizes = {}

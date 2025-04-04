@@ -1,13 +1,14 @@
 local Workspace = {}
 RegisterClass(Workspace, "W-Workspace")
-
-function Workspace:saveRules(rules) end
+local varSpecMT = require("varSpecMT")
 
 function Workspace:new()
     local workspace = {}
     setmetatable(workspace, self)
-    self.__index = self
-    workspace.sizes = {0, 0, 0, 0}
+    varSpecMT(self) -- dont create *that* many workspaces... probably
+                    -- so i will just let this do it on every new; at lest for now. (a pain to fix.)
+
+    workspace.sizes = {0, 0, 0, 0} -- need for if i change anything in workspace ad want to resize down
     return workspace
 end
 

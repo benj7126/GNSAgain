@@ -2,6 +2,7 @@ local Workspace = require("workspaces.workspace")
 local Elements = require("workspaces.elements")
 local Reference = Workspace:new()
 RegisterClass(Reference, "W-Reference")
+local VarSpec = require("varSpec")
 
 -- maby all Elements should just act like this automatically?
 -- can't really think of a case where this is not the optimal solution...
@@ -13,15 +14,10 @@ RegisterClass(Reference, "W-Reference")
 
 local WorkspaceRefs = {}
 
-function Reference:saveRules(rules)
-    Workspace:saveRules(rules)
-    rules["targetId"] = 0
-end
-
-function Reference:new()
+function Reference:new(newId)
     local ref = Workspace.new(Reference)
 
-    ref.targetId = getUUID()
+    ref.targetId = VarSpec:new(newId or getUUID()) -- fx if its origin is somewhere else or something...
     ref.workspace = {}
 
     return ref
@@ -33,6 +29,9 @@ function Reference:resize(x, y, w, h)
 
         if not loaded then
             loaded = Elements:new() -- should maby be a selectionWorkspace or something somehow..? maby not.
+                                    -- or, does it ever need to not be an Elements workspace,
+                                    -- i feel like the single element should just use 'WorkspaceRefs'
+                                    -- and the index/path from 'Elements' workspace of/to said element
         end
 
         WorkspaceRefs[self.targetId] = loaded

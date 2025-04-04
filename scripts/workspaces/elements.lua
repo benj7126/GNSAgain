@@ -2,7 +2,7 @@ local Workspace = require("workspaces.workspace")
 local Elements = Workspace:new()
 RegisterClass(Elements, "W-Elements")
 
-function Elements:new(workspace)
+function Elements:new()
     local elms = Workspace.new(Elements)
 
     self.saveAlone = true
