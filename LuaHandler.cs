@@ -4,6 +4,7 @@ using KeraLua;
 using NLua;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
@@ -103,7 +104,6 @@ namespace GNSAgain
                     }
                 }
             }
-
         }
 
         internal static void loadModules()
@@ -115,7 +115,7 @@ namespace GNSAgain
             foreach (string module in Modules.Values)
             {
                 // Run setup on all modules
-                callFunctionFromCode(module, "Setup");
+                callFunctionFromCode(module, "Setup"); // neither know if this works nor if i actually need it like this...
             }
 
             L.SetObjectToPath("_modules", Modules);
@@ -135,6 +135,36 @@ namespace GNSAgain
                 end}
             """);
         }
+
+        /* -- would like to have this but lets call it a work in progress for now.
+        [LuaMethod]
+        internal static void reLoadModules()
+        {
+            Dictionary<string, string> newModules = SaveAndLoadManager.GetModules();
+            // should be able to reload moduels
+            // L.DoString("""package.loaded.moduleName = nil"""); clears a module, then re-require it.
+
+            List<string> toRequire = new List<string>();
+
+            foreach (KeyValuePair<string, string> module in newModules)
+            {
+                if (Modules.ContainsKey(module.Key))
+                {
+                    if (Modules[module.Key] != module.Value)
+                    {
+                        Modules[module.Key] = module.Value;
+                        L.DoString("package.loaded[" + module.Key + "] = nil");
+                        toRequire.Add(module.Key);
+                    }
+                }
+                else
+                {
+                    Modules.Add(module.Key, module.Value);
+                }
+            }
+        }
+        */
+
 
         [LuaMethod]
         private static string getUUID()

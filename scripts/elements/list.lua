@@ -22,6 +22,7 @@ end
 
 function List:resize(x, y, w, h)
     self.es:recalculate(x, y, w, h)
+
     if self.cols < 1 then self.cols = 1 end
 
     local offsetX = 0
@@ -51,7 +52,7 @@ function List:resize(x, y, w, h)
             else
                 elm.es.width.pixels = 0
             end
-            
+
             elm.es.left.pixels = 0
         else
             elm.es.left.pixels = offsetX
@@ -64,7 +65,7 @@ function List:resize(x, y, w, h)
         end
 
         elm:resize(self.es.x, self.es.y, self.es.w, self.es.h)
-        
+
         offsetX = offsetX + elm.es.w + self.xSpacing -- only used if customw allowed
 
         if self.type == 2 then

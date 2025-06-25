@@ -37,7 +37,8 @@ function Label:new(forLoad)
     local resize = label.resize
     label.resize = function(self, ...)
         resize(self, ...)
-        self:prepTB()
+        self:prepare() -- dont have to prepare everything every time i resize something above me.
+                       -- might just be fixed by elements workspace not having to recalc any sub-elements though..?
     end
 
     return label
@@ -58,7 +59,7 @@ function LabelBuilder:new(textbox, mousePos)
     return lb
 end
 
-function LabelBuilder:InsertBuffer(lineBuffer, codepointBuffer)
+function LabelBuilder:insertBuffer(lineBuffer, codepointBuffer)
     for _, cpNWidth in pairs(codepointBuffer) do
         self.textOffsetX = self.textOffsetX + cpNWidth[2];
 
@@ -66,7 +67,7 @@ function LabelBuilder:InsertBuffer(lineBuffer, codepointBuffer)
     end
 end
 
-function Label:prepTB()
+function Label:prepare()
     self.lines = {}
 
     local CpC = rl.getCodepointCounter(self.text, self.fontName, self.fontSize, self.spacing)
@@ -82,10 +83,10 @@ function Label:prepTB()
         local codepoint, charWidth, nextCharWidth = CpC:nexCodepoint();
 
         if codepoint == 10 then -- if newline
-            LB:InsertBuffer(lineBuffer, codepointBuffer)
+            LB:insertBuffer(lineBuffer, codepointBuffer)
             codepointBuffer = {}
 
-            --LB:InsertBuffer(lineBuffer, {{32, 0}}) -- insert space with no width at end for making it work well, iirc
+            --LB:insertBuffer(lineBuffer, {{32, 0}}) -- insert space with no width at end for making it work well, iirc
                                                    -- might not mean anything...
 
                                                    -- i will have to try without this and see if it works the same (after everything is up and running)
@@ -113,7 +114,7 @@ function Label:prepTB()
                         lineBuffer = {}
                         lineWidth = 0
                     else
-                        LB:InsertBuffer(lineBuffer, codepointBuffer)
+                        LB:insertBuffer(lineBuffer, codepointBuffer)
                         table.insert(self.lines, lineBuffer)
                         lineBuffer = {}
                         lineWidth = 0
@@ -125,7 +126,7 @@ function Label:prepTB()
                     LB.peakTextOffsetX = math.max(LB.peakTextOffsetX, LB.textOffsetX)
                     LB.textOffsetX = 0
                 else
-                    LB:InsertBuffer(lineBuffer, codepointBuffer)
+                    LB:insertBuffer(lineBuffer, codepointBuffer)
                     codepointBuffer = {}
                     lineWidth = lineWidth + codepointBufferWidth
                     codepointBufferWidth = 0
@@ -134,7 +135,7 @@ function Label:prepTB()
         end
     end
 
-    LB:InsertBuffer(lineBuffer, codepointBuffer);
+    LB:insertBuffer(lineBuffer, codepointBuffer);
     table.insert(self.lines, lineBuffer)
     lineWidth = lineWidth + codepointBufferWidth
     codepointBufferWidth = 0

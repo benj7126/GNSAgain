@@ -4,12 +4,18 @@ local Label = require("elements.label")
 local Button = Element:from()
 RegisterClass(Button, "Button")
 
+-- maby no base elements should add elements to its elements list..?
+
 function Button:new(forLoad)
     local b = Element.new(Button, forLoad)
 
     b.pressed = {false, false, false}
 
     -- should i have a border?
+    -- color change when hovering?
+        -- modules with variables
+            -- add color (-x on r, g and b)
+            -- set color (set color to given color when hovering)
 
     if not forLoad then
         local box = Box:new()
@@ -38,8 +44,22 @@ function Button:press(button)
     -- run some function of the code that i dont have yet, ig.
 end
 
+function Button:release(button)
+    -- run some function of the code that i dont have yet, ig.
+end
+
+function Button:click(button)
+    -- run some function of the code that i dont have yet, ig.
+end
+
+function Button:drag(button)
+    -- run some function of the code that i dont have yet, ig.
+end
+
 function Button:handleEvent(event)
     if event.type == "mousepress" then
+        self:press(event.button)
+
         self.pressed[event.button] = true
         
         PostNextEvent("mouserelease", function(nEvent)
@@ -50,11 +70,22 @@ function Button:handleEvent(event)
 
             return false -- keep it, was not the same button.
         end)
+        
+        PostNextEvent("*", function(nEvent)
+            if nEvent.type == "mouserelease" then
+                return true -- remove from list
+            end
+
+            self:drag(event.button)
+
+            return false -- keep it
+        end)
 
         return true
     elseif event.type == "mouserelease" then
+        self:release(event.button)
         if self.pressed[event.button] then -- pressed automatically set to false from PostNextEvent above
-            self:press(event.button)
+            self:click(event.button)
         end
     end
     return false

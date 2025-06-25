@@ -4,6 +4,9 @@ local Textbox = Element:from()
 RegisterClass(Textbox, "Textbox")
 local VarSpec = require("varSpec")
 
+-- would like to write this less ugly.
+-- would like even more to have a program though; so later.
+
 -- "static variables"
 Textbox.cursorVisualX = 0;
 Textbox.cursorVisualY = 0;
@@ -34,6 +37,7 @@ function Textbox:new(forLoad)
     tb.highlightColor = VarSpec:new(rl.color(0, 0, 200, 100))
     tb.cursorColor = VarSpec:new(rl.color(255, 150, 0))
 
+    -- if it is loaded from disc then it will already have a label.
     if not forLoad then
         local label = Label:new()
         label.es.width.percent = 1
@@ -283,7 +287,7 @@ function Textbox:handleEvent(event)
         Textbox.cursorPosition = Textbox.cursorPosition + 1
 
         -- Textbox.cursorVisualX = Textbox.cursorVisualX + rl.getCharWidth(event.key, label.fontName, label.fontSize, label.spacing)
-        label:prepTB() -- TODO: ideally i would like to only update from the change, and as little as possible
+        label:prepare() -- TODO: ideally i would like to only update from the change, and as little as possible
         self:correctCusorVisual() -- well, what if wrap..?
         -- self:updateVisualCursor() should be able to calculate the location on the run.
     elseif event.type == "specialKey" then
@@ -317,7 +321,7 @@ function Textbox:handleEvent(event)
                 Textbox.cursorPosition = Textbox.cursorPosition + 1
             end
 
-            label:prepTB() -- ideally from Textbox.cursorPosition until "out of bounds"
+            label:prepare() -- ideally from Textbox.cursorPosition until "out of bounds"
             if wasHighlight ~= -1 or event.key == 259 then -- backspace needs either this or with a pos, this is probabbly better.
                 self:correctCusorVisual()
             end

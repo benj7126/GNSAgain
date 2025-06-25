@@ -1,5 +1,5 @@
 -- should be in elements as it is an "empty" element
--- potentially for events.
+-- potentially for events..?
 
 local StyleDimension = {}
 

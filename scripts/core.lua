@@ -1,5 +1,6 @@
 require("globalizedEvents")
 require("saveLoadManager")
+require("ensureClasses")
 
 -- should add another layer for loading elements
 -- that are based on elements based on classes
@@ -16,14 +17,12 @@ require("saveLoadManager")
 
 -- things need to be required once to acutally be loaded...
 -- might want to cheat that and just 'load' everything at startup?
-local Reference = require("workspaces.reference")
+
+-- could make elemnts of elements - like the ones not in the list of elements be varSpecs and changeable like that somehow?
+
 local Selection = require("workspaces.selection")
-local Elements = require("workspaces.elements")
 local Stacked = require("workspaces.stacked")
-local Textbox = require("elements.textbox")
-local Button = require("elements.button")
-local List = require("elements.list")
-local Box = require("elements.box")
+local Split = require("workspaces.split")
 
 
 --
@@ -119,10 +118,15 @@ if not loaded then
 end
 
 local topWorkspace = loaded]]
+local loaded = LoadObject("core")
 
-local topWorkspace = Stacked:new()
-topWorkspace:addWorkspace(Selection:new())
-topWorkspace:addWorkspace(Selection:new())
+if not loaded then
+    loaded = Stacked:new(Split:new(Selection:new()))
+    loaded:addWorkspace(Split:new(Selection:new()))
+    loaded:addWorkspace(Split:new(Selection:new()))
+end
+
+local topWorkspace = loaded
 
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is
@@ -130,6 +134,16 @@ function WithingBox(x, y, w, h, pos)
 
                                                                         -- probably by removing raylib vec, somehow...
 end
+
+-- TODO: How workspaces should intract - or smthn;
+ -- Split, stacked and things like that are just for organizing stuff
+ -- elements should never be a subworkspace of anything - directly
+ -- that is because i want all elements to be shown/interacted with via reference workspace.
+ -- singleElement shoulde likely do something where it has a reference to said element using
+ -- a method similar to how reference workspace works.
+
+ -- other workspaces should do other cool things, and element workspaces should be able to have
+ -- rules enforced on them or somethign like that to decide behaviour; mainly not in the core things.
 
 function CoreUpdate()
     -- print(test.elements.label.text)
