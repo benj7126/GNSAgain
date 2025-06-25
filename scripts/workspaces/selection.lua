@@ -42,7 +42,7 @@ function Selection:new(parentMT)
     local list = List:new()
 
     for name, mt in pairs(GetClasses()) do
-        if name:sub(1, 2) == "W-" and mt ~= parentMT and mt ~= Selection and name ~= "W-Split" then -- might just want to exclude stacked here too..?
+        if name:sub(1, 2) == "W-" and mt ~= parentMT and mt ~= Selection then -- had 'and name ~= "W-Split"' - was considering stacked too, but why not just let them do whatever..?
             local button = Button:new()
             button.elements[2].text = name:sub(3, #name)
 

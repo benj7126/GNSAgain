@@ -120,10 +120,10 @@ end
 local topWorkspace = loaded]]
 local loaded = LoadObject("core")
 
-if not loaded then
-    loaded = Stacked:new(Split:new(Selection:new()))
-    loaded:addWorkspace(Split:new(Selection:new()))
-    loaded:addWorkspace(Split:new(Selection:new()))
+if not loaded then -- the defaults
+    loaded = Stacked:new(Split:new(Selection:new(Split))) -- should maby be a reference to a 'main' elements workspace?
+    loaded:addWorkspace(Split:new(Selection:new(Split))) -- then this should be a split, like at like 0.2~0.3 with toolbox at left and editor at right
+    loaded:addWorkspace(Split:new(Selection:new(Split))) -- and lastly like settings?
 end
 
 local topWorkspace = loaded

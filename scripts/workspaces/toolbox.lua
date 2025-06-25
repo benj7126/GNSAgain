@@ -1,0 +1,1 @@
+-- so that you can split and have a toolbox to the side and then move items from it to an elements workspace.

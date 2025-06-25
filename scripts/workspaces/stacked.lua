@@ -73,7 +73,7 @@ function Stacked:new(workspace)
 
     table.insert(stacked.list.elements, cond)
 
-    stacked:addWorkspace(workspace or Split:new(Selection:new()))
+    stacked:addWorkspace(workspace or Selection:new(Stacked))
 
     stacked.list.elements[stacked.focused].elements[1].color = rl.color(255, 100, 0)
     
@@ -84,7 +84,7 @@ end
 
 function Stacked:setupRefs()
     self.plusButton.click = function (_, button)
-        if button == 0 then self:addWorkspace(Split:new(Selection:new())) end
+        if button == 0 then self:addWorkspace(Selection:new(Stacked)) end
     end
 end
 
