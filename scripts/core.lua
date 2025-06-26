@@ -128,6 +128,44 @@ end
 
 local topWorkspace = loaded
 
+local TraversableTree = require("elements.traversableTree")
+local Button = require("elements.button")
+topWorkspace = require("workspaces.elements"):new()
+local tree = TraversableTree:new()
+tree.es.width.percent = 0.3
+
+local b1 = Button:new()
+local b2 = Button:new()
+local b3 = Button:new()
+local b4 = Button:new()
+local b5 = Button:new()
+local b6 = Button:new()
+local bs = {b1, b2, b3, b4, b5, b6}
+
+for i, v in ipairs(bs) do
+    v.es.width.percent = 0
+    v.es.height.percent = 0
+    v.es.height.pixels = 16
+    v.elements[2].fontSize = 16
+
+    v.click = function () print("Pressed the "..i.."'th *click me*") end
+
+    v.elements[2]:prepare()
+    v.es.width.pixels = v.elements[2].textWidth + 10
+end
+b2.es.width.pixels = 60
+b2.es.height.pixels = 60
+
+b4.es.width.pixels = 200
+b4.es.height.pixels = 200
+
+b5.es.width.pixels = 120
+b5.es.height.pixels = 30
+
+tree.contents = {b1, {"_hides b2", b2}, b3, {"elms", b4, {"ghmmm", b5}, b6}}
+
+topWorkspace.elements = {tree}
+
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is
                                                                         -- an inconsistency that should be fixed at some point.

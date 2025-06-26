@@ -11,6 +11,10 @@ function List:new(forLoad)
     list.cols = VarSpec:new(1)
     list.allowCustomW = false
 
+    list.adjustToHeight = false
+
+    list.flipXY = false
+
     list.type = VarSpec:new(1)
     -- 1 -> one, total, offset
     -- 2 -> on offset pr col
@@ -43,6 +47,9 @@ function List:resize(x, y, w, h)
         end
 
         local thisIdxY = i % self.cols
+        if thisIdxY == 0 then -- if this is the start of a new row, then
+            offsetX = 0 -- have no x offset
+        end
 
         if not self.allowCustomW then
             elm.es.width.percent = 1 / self.cols
@@ -64,6 +71,9 @@ function List:resize(x, y, w, h)
             elm.es.top.pixels = offsetY
         end
 
+        if elm.listOffsetX then elm.es.left.pixels = elm.es.left.pixels + elm.listOffsetX end
+        if elm.listOffsetY then elm.es.top.pixels = elm.es.top.pixels + elm.listOffsetY end
+
         elm:resize(self.es.x, self.es.y, self.es.w, self.es.h)
 
         offsetX = offsetX + elm.es.w + self.xSpacing -- only used if customw allowed
@@ -71,11 +81,20 @@ function List:resize(x, y, w, h)
         if self.type == 2 then
             offsetY[thisIdxY + 1] = offsetY[thisIdxY + 1] + elm.es.h + self.ySpacing
         else
-            largestH = math.max(largestH, elm.es.h)
-            if thisIdxY == 0 then
+            largestH = math.max(largestH, elm.es.h) -- this dosent seem right?
+            if thisIdxY == 0 then -- if at the end
                 offsetY = offsetY + largestH + self.ySpacing
                 largestH = 0
             end
+        end
+    end
+
+    if self.adjustToHeight then
+        if self.type == 2 then
+            -- do stuff with lists
+            print("not implimented in elements.list")
+        else
+            self.es.h = offsetY - self.ySpacing
         end
     end
 end

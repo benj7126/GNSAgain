@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace GNSAgain.luaLinkings
-{
+{/*
     internal class TextboxChars(int codepoint) // should i just store the position / AABB as well?
     {
         public int codepoint = codepoint;
@@ -20,7 +20,7 @@ namespace GNSAgain.luaLinkings
         CharWrapping, // normal(?) wrapping
         WordWrapping, // word wrappoing
         NoWrapping // no wrapping at all
-    }
+    }*/
     internal unsafe class CodepointCounter
     {
         [LuaMethod("rl")]
@@ -62,7 +62,6 @@ namespace GNSAgain.luaLinkings
         }
 
         [LuaMethod("rl")] // takes a string; but only looks at the first char.
-
         unsafe static public float getCharWidth(string c, string fontName, int fontSize, float spacing)
         {
             Font font = FontManager.getFont(fontName, fontSize);
@@ -125,7 +124,7 @@ namespace GNSAgain.luaLinkings
         }
     }
     
-
+    /*
     internal class TextboxCore
     {
         [LuaMethod("rl")]
@@ -252,7 +251,7 @@ namespace GNSAgain.luaLinkings
                 textOffsetY += fontSize + lineSpacing;
                 textOffsetX = 0;
             }
-            */
+            *//*
         }
 
         /// <summary>
@@ -323,7 +322,7 @@ namespace GNSAgain.luaLinkings
                 {
                     nextCharWidth = 0; 
                 }
-                */
+                *//*
 
                 if (codepoint == '\n')
                 {
@@ -451,7 +450,7 @@ namespace GNSAgain.luaLinkings
                     scroll.X = cursorVisualX;
                 }
             }
-            */
+            *//*
         }
-    }
+    }*/
 }
