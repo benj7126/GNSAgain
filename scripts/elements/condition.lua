@@ -8,14 +8,16 @@ function Condition:new(forLoad, elm)
 
     cond.draw = nil
 
-    if not forLoad then
-        cond.includeUpdate = false
-        cond.cond = function (self) -- how do i even save this :/ - should it be module-based..? Maby module and custom code - when i get to that; later.
-            return true
-        end
+    cond.includeUpdate = false
 
+    -- if i make all elements have parents, i might be able to make it work alright..?
+    cond.cond = VarSpec:new([[return true]], {code={self=cond}})
+
+    if not forLoad then
         cond.elements.containing = elm or Element:new() -- could this be a varspec? - instead of in elements like this; though maby dosent matter?
     end
+
+    elm.parent = cond
     
     return cond
 end

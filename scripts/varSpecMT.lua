@@ -6,7 +6,7 @@ return function (MT)
         
         if not value then
             value = rawget(t, "_"..k)
-            if value then value = value.value end
+            if value then value = value:get() end
         end
 
         if value then
@@ -18,7 +18,7 @@ return function (MT)
     MT.__newindex = function (t, k, v)
         local potentialVarSpec = rawget(t, "_"..k)
         if potentialVarSpec then
-            potentialVarSpec.value = v
+            potentialVarSpec:set(v)
             return
         end
 

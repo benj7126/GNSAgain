@@ -13,3 +13,5 @@ function InspValue:genElement() -- idk if this is best approach; returns one ele
 end
 
 return InspValue
+
+-- shouldn't this just be handled by VarSpec?

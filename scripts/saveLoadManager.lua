@@ -60,7 +60,7 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
     for i, v in pairs(obj) do
         if not saveAll then
             if getmetatable(v) == VarSpec and v.options.save == true then
-                v = v.value
+                v = v:toSaveValue()
                 i = i:sub(2, #i)
             else
                 v = nil

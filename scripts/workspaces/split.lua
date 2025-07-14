@@ -20,9 +20,9 @@ function Split:new(workspace)
         Button:new() -- right
     }
 
-    split.elements = {
+    local elementsToAdd = {
         Condition:new(false, split.sidesButtons[1]),
-        Condition:new(false, split.sidesButtons[2]), 
+        Condition:new(false, split.sidesButtons[2]),
         Condition:new(false, split.sidesButtons[3]),
         Condition:new(false, split.sidesButtons[4])
     }
@@ -30,6 +30,7 @@ function Split:new(workspace)
     split.splitButtons = {}
 
     for i = 1, 4 do
+        elementsToAdd[i]:placeInto(split)
         table.remove(split.sidesButtons[i].elements, 2)
     end
 
@@ -88,7 +89,7 @@ function Split:newSplit(atEnd)
 
     local nButton = Button:new()
     local nCondition = Condition:new(false, nButton)
-    nCondition.cond = function () return rl.isCtrlDown() end
+    nCondition.cond = "return rl.isCtrlDown()"
 
     table.remove(nButton.elements, 2)
     
@@ -112,8 +113,8 @@ function Split:newSplit(atEnd)
         nButton.drag = getVertDrag(self)
     end
 
-    table.insert(self.splitButtons, nButton)
-    table.insert(self.elements, nCondition)
+    nButton:placeInto(self, "splitButtons")
+    nCondition:placeInto(self)
 
     local nTable = Split:new()
     nTable.horizontal = not self.horizontal
@@ -169,16 +170,12 @@ function Split:setupRefs()
     for i = 1, 2 do
         self.sidesButtons[i].drag = getVertDrag(self)
 
-        self.elements[i].cond = function ()
-            return rl.isCtrlDown() and (self.horizontal == false or self.horizontal == nil)
-        end
+        self.elements[i].cond = "return rl.isCtrlDown() and (self.parent.horizontal == false or self.parent.horizontal == nil)"
     end
     for i = 3, 4 do
         self.sidesButtons[i].drag = getHoriDrag(self)
 
-        self.elements[i].cond = function ()
-            return rl.isCtrlDown() and (self.horizontal == true or self.horizontal == nil)
-        end
+        self.elements[i].cond = "return rl.isCtrlDown() and (self.parent.horizontal == true or self.parent.horizontal == nil)"
     end
 end
 

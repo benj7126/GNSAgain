@@ -118,16 +118,23 @@ if not loaded then
 end
 
 local topWorkspace = loaded]]
-local loaded = LoadObject("core")
+local loaded = LoadObject("core") -- "origin" feels better, no?
 
 if not loaded then -- the defaults
     loaded = Stacked:new(Split:new(Selection:new(Split))) -- should maby be a reference to a 'main' elements workspace?
-    loaded:addWorkspace(Split:new(Selection:new(Split))) -- then this should be a split, like at like 0.2~0.3 with toolbox at left and editor at right
-    loaded:addWorkspace(Split:new(Selection:new(Split))) -- and lastly like settings?
+    loaded:addWorkspace(Split:new(Selection:new(Split))) -- then this should be a split, at like 0.2~0.3 with toolbox at left and editor at right
+    loaded:addWorkspace(Split:new(Selection:new(Split))) -- and lastly; settings..?
 end
+
+---- important stuff;;; \/
+
+-- in the process of making everything use 'placeInto' - so as to have parents.
+-- working on making split work with string-based stuff.
+-- i also need to save/load the parent.
 
 local topWorkspace = loaded
 
+--[[
 local TraversableTree = require("elements.traversableTree")
 local Button = require("elements.button")
 topWorkspace = require("workspaces.elements"):new()
@@ -165,6 +172,7 @@ b5.es.height.pixels = 30
 tree.contents = {b1, {"_hides b2", b2}, b3, {"elms", b4, {"ghmmm", b5}, b6}}
 
 topWorkspace.elements = {tree}
+]]--
 
 function WithingBox(x, y, w, h, pos)
     return pos.X > x and pos.X < x + w and pos.Y > y and pos.Y < y + h; -- when its a raylib vec, its big x and y, this is
@@ -182,6 +190,8 @@ end
 
  -- other workspaces should do other cool things, and element workspaces should be able to have
  -- rules enforced on them or somethign like that to decide behaviour; mainly not in the core things.
+
+ -- notes should be able to be pulled into 'categories'/sub-workspace
 
 function CoreUpdate()
     -- print(test.elements.label.text)

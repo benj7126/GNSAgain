@@ -95,6 +95,7 @@ function Element:new(forLoad) -- tmp solution?
 
     element.es = VarSpec:new(ElementStyle:new())
     element.elements = {}
+    element.parent = nil
 
     element.id = id -- element id test thing
     id = id + 1
@@ -123,6 +124,18 @@ end
 function Element:resize(x, y, w, h)
     self.es:recalculate(x, y, w, h)
     for _, elm in pairs(self.elements) do elm:resize(self.es.x, self.es.y, self.es.w, self.es.h) end
+end
+
+function Element:placeInto(parent, subVar, index)
+    self.parent = parent
+
+    subVar = subVar or "elements"
+    
+    if index then
+        parent[subVar][index] = self
+    else
+        table.insert(parent[subVar], self)
+    end
 end
 
 function Element:draw() end

@@ -4,6 +4,9 @@ local varSpecMT = require("varSpecMT")
 
 function Workspace:new()
     local workspace = {}
+    
+    workspace.elements = {}
+    
     setmetatable(workspace, self)
     varSpecMT(self) -- dont create *that* many workspaces... probably
                     -- so i will just let this do it on every new; at lest for now. (a pain to fix.)
