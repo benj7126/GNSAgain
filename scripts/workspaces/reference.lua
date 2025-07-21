@@ -24,6 +24,8 @@ function Reference:new(newId)
 end
 
 function Reference:resize(x, y, w, h)
+    self.sizes = {x, y, w, h}
+
     if not WorkspaceRefs[self.targetId] then
         local loaded = LoadObject(self.targetId)
 

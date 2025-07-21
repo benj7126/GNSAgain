@@ -53,19 +53,6 @@ function Selection:new(parentMT)
                     sel.select(mt:new())
                 end
             end
-            button.press = function ()
-                local b = Button:new()
-                b.es.width.percent = 0
-                b.es.height.percent = 0
-                b.es.height.pixels = 16
-                b.elements[2].fontSize = 16
-
-                b.click = function () print("Pressed the *click me*") end
-
-                b.elements[2]:prepare()
-                b.es.width.pixels = b.elements[2].textWidth + 10
-                table.insert(require("workspaces.toolbox").notes, b)
-            end
 
             table.insert(list.elements, button)
         end

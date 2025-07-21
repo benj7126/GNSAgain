@@ -6,9 +6,9 @@ RegisterClass(TraversableTree, "TraversableTree")
 local VarSpec = require("varSpec")
 
 function TraversableTree:new(forLoad)
-    local tree = Element.new(TraversableTree, forLoad) -- maby onlt save 'tree.contents' and fuck everything else..?
+    local tree = Element.new(TraversableTree, forLoad) -- dont save element.list somehow?
 
-    tree.sortFunc = nil
+    tree.sortFunc = nil -- needs to be code
     tree.contents = {}
     tree.offset = 20
     tree.spacing = 2
@@ -16,6 +16,16 @@ function TraversableTree:new(forLoad)
     tree.lastSizes = {0, 0, 0, 0}
 
     return tree
+end
+
+function TraversableTree:updateList()
+    -- should probably have a way to insert and add instead of self.contents so i dont have to re-make the whole thing each time
+    -- but this is a temporary solution like many others.
+
+    local list = self:getListOf(self.contents, 0)
+    self.elements.list = list
+    
+    if self.elements.list then self.elements.list:resize(self.es.x, self.es.y, self.es.w, self.es.h) end
 end
 
 function TraversableTree:getCollapseButton(items, offset)
@@ -95,12 +105,7 @@ function TraversableTree:resize(x, y, w, h)
     self.parentSizes = {x, y, w, h}
     self.es:recalculate(x, y, w, h)
 
-    -- should probably have a way to insert and add instead of self.contents so i dont have to re-make the whole thing each resize
-    -- but this is a temporary solution like many others.
-    local list = self:getListOf(self.contents, 0)
-    self.elements.list = list
-    
-    if self.elements.list then self.elements.list:resize(self.es.x, self.es.y, self.es.w, self.es.h) end
+    self:updateList()
 end
 
 return TraversableTree

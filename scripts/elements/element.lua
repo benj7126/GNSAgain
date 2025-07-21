@@ -72,13 +72,13 @@ end
 local VarSpecMT = require("varSpecMT")
 
 local Element = {}
+Element.__index = Element
 RegisterClass(Element, "Element")
 VarSpecMT(Element) -- applies to element(this)
 
 function Element:from() --          i do 'from' because i dont want to override
     local newMT = {}  --          any methods "subclassing"
     setmetatable(newMT, self) --  would also be a waste to add the variables to a class, no?
-    self.__index = self
 
     VarSpecMT(newMT) -- applies to all sub-elements, only once and not on creation.
     return newMT
@@ -151,7 +151,7 @@ function Element:propagateEvent(event)
     for i = #elmLoop, 1, -1 do
         local elm = elmLoop[i]
         if WithingBox(elm.es.x, elm.es.y, elm.es.w, elm.es.h, event.pos) then
-            elm:propagateEvent(event)
+            elm:propagateEvent(event, i)
             return
         end
     end

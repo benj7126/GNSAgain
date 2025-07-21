@@ -96,10 +96,8 @@ function Stacked:resize(x, y, w, h)
 end
 
 function Stacked:draw()
-    scissor.enter(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4])
     self.workspaces[self.focused]:draw()
     self.list:draw()
-    scissor.exit()
 end
 
 function Stacked:update()

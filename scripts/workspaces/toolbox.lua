@@ -4,32 +4,45 @@ local TraversableTree = require("elements.traversableTree")
 local Workspace = require("workspaces.workspace")
 local Toolbox = Workspace:new()
 
+local InstanceDisplayer = require("elements.instanceDisplayer")
+local ToolboxItem = require("elements.toolboxItem")
 -- want this to have 'folders' as well
 
 RegisterClass(Toolbox, "W-Toolbox")
 
-Toolbox.notes = {} -- should be shared in some other way probably
-                   -- some way to hook into when these are changed and a system to keep track of them not in here.
+-- have to make it possible to draw all these at different positions even though they are only one item...
+-- i dont quite want to make a copy each time; not sure...
+
+-- maby just have this be constant size fx (400, infty) - with scroll - and then use transforms to draw it different places..?
+-- then make it not scaleable/fixed size, and have a thing that tells 'selection' that it can only be placed inside a split? and maby that the split has to make it the right size..?
+
+Toolbox.tree = TraversableTree:new()
+InstanceDisplayer.AddInstance("toolbox", Toolbox.tree, 400, nil)
 
 function Toolbox:new() -- maby this should just be a subworkspace of singleElement?
     local toolbox = Workspace.new(Toolbox)
 
-    toolbox.tree = TraversableTree:new()
-    toolbox.tree.contents = Toolbox.notes
+    toolbox.display = InstanceDisplayer:new(false, "toolbox")
+
+    local e = ToolboxItem:new()
+    table.insert(Toolbox.tree.contents, e)
+    Toolbox.tree:updateList()
 
     return toolbox
 end
 
 function Toolbox:resize(x, y, w, h)
-    self.tree:resize(x, y, w, h)
+    self.sizes = {x, y, w, h}
+
+    self.display:resize(x, y, w, h)
 end
 
-function Toolbox:draw() self.tree:draw() end
+function Toolbox:draw() self.display:draw() end
 
-function Toolbox:update() self.tree:update() end
+function Toolbox:update() self.display:update() end
 
 function Toolbox:propagateEvent(event)
-    self.tree:propagateEvent(event)
+    self.display:propagateEvent(event)
 end
 
 return Toolbox

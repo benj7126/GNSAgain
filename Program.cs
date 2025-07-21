@@ -17,6 +17,7 @@ namespace GNSAgain
             SetTargetFPS(60);
 
             LuaHandler.SetupLuaInterfacer();
+            TransformationManager.init();
 
             while (!WindowShouldClose())
             {

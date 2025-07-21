@@ -217,8 +217,6 @@ function Split:resize(x, y, w, h)
 end
 
 function Split:draw()
-    scissor.enter(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4])
-
     for _, workspace in pairs(self.workspaces) do
         workspace:draw()
     end
@@ -226,8 +224,6 @@ function Split:draw()
     for _, elm in pairs(self.elements) do
         elm:draw()
     end
-
-    scissor.exit()
 end
 
 function Split:update()
@@ -239,7 +235,7 @@ end
 function Split:propagateEvent(event)
     event:passed(self)
     if self:handleEvent(event) then return end
-    
+
     for _, workspace in pairs(self.workspaces) do
         local sizes = workspace.sizes
         if WithingBox(sizes[1], sizes[2], sizes[3], sizes[4], event.pos) then

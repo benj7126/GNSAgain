@@ -38,7 +38,7 @@ local function elmWorkspaceListHelper(list, ami, char)
     return {highestNumber, newList}
 end
 
-local function breakdownObject(obj, indent, ami) -- this could be used for any object, really.
+function BreakdownObject(obj, indent, ami) -- this could be used for any object, really.
     local string = ""
 
     -- local MT = getmetatable(obj)
@@ -72,7 +72,7 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
         local t = type(v)
 
         if t == "table" then
-            v = "{"..breakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
+            v = "{"..BreakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
         elseif t == "userdata" then
             v = nil -- currently dont save userdata
         elseif t == "function" then
@@ -97,10 +97,10 @@ local function breakdownObject(obj, indent, ami) -- this could be used for any o
     end
 
     if obj.elements then
-        string = string .. "\n" .. indent .. "elements = {"..breakdownObject(elmWorkspaceListHelper(obj.elements, ami, "e"), indent.."\t", ami) .. "\n"..indent.."},"
+        string = string .. "\n" .. indent .. "elements = {"..BreakdownObject(elmWorkspaceListHelper(obj.elements, ami, "e"), indent.."\t", ami) .. "\n"..indent.."},"
     end
     if obj.workspaces then
-        string = string .. "\n" .. indent .. "workspaces = {"..breakdownObject(elmWorkspaceListHelper(obj.workspaces, ami, "w"), indent.."\t", ami) .. "\n"..indent.."},"
+        string = string .. "\n" .. indent .. "workspaces = {"..BreakdownObject(elmWorkspaceListHelper(obj.workspaces, ami, "w"), indent.."\t", ami) .. "\n"..indent.."},"
     end
 
     if obj.extraSave then
@@ -116,7 +116,7 @@ function CreateStringFromObject(obj, ami)
         return nil
     end
 
-    local string = "return {" .. breakdownObject(obj, "\t", ami)
+    local string = "return {" .. BreakdownObject(obj, "\t", ami)
     local output = string .. '\n}, "' .. classList[getmetatable(obj)] .. '"'
 
     return output

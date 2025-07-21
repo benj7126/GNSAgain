@@ -16,13 +16,14 @@ namespace GNSAgain.luaLinkings
     {
         public static void Setup(Lua L)
         {
+            L["vec"] = (float x, float y) => new Vector2(x, y);
             L.NewTable("rl");
-            LuaTable a = L.GetTable("rl");
-            a["rec"] = DrawRectangle;
-            a["vec"] = (float x, float y) => new Vector2(x, y);
-            a["drawTextCodepoint"] = DrawTextCodepoint;
-            a["isShiftDown"] = () => IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift);
-            a["isCtrlDown"] = () => IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl);
+            LuaTable rlTable = L.GetTable("rl");
+            rlTable["rec"] = DrawRectangle;
+            rlTable["vec"] = (float x, float y) => new Vector2(x, y);
+            rlTable["drawTextCodepoint"] = DrawTextCodepoint;
+            rlTable["isShiftDown"] = () => IsKeyDown(KeyboardKey.LeftShift) || IsKeyDown(KeyboardKey.RightShift);
+            rlTable["isCtrlDown"] = () => IsKeyDown(KeyboardKey.LeftControl) || IsKeyDown(KeyboardKey.RightControl);
         }
 
         [LuaMethod(["rl"])]
@@ -30,5 +31,21 @@ namespace GNSAgain.luaLinkings
         {
             return new Color(r, g, b, a);
         }
+
+        /*
+        [LuaMethod(["rl"])]
+        private static RenderTexture2D getCanvas(int screenWidth, int screenHeight)
+        {
+            return Raylib.LoadRenderTexture(screenWidth, screenHeight);
+        }
+
+        [LuaMethod(["rl"])]
+        private static void drawCanvas(RenderTexture2D canvas, int x, int y, Color? inpTint = null)
+        {
+            Color tint = inpTint.HasValue ? inpTint.Value : Color.White;
+
+            DrawTexture(canvas.Texture, x, y, tint);
+        }
+        */
     }
 }

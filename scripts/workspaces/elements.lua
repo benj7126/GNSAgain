@@ -15,7 +15,8 @@ function Elements:new()
 end
 
 function Elements:resize(x, y, w, h)
-    -- self.sizes = {x, y, w, h} might not care
+    self.sizes = {x, y, w, h}
+
     for _, elms in pairs(self.elements) do
         elms:resize(x, y, w, h)
     end
@@ -23,15 +24,29 @@ end
 
 function Elements:draw()
     for _, elms in pairs(self.elements) do
-        scissor.enter(elms.es.x, elms.es.y, elms.es.w, elms.es.h)
+        -- scissor.enter(elms.es.x, elms.es.y, elms.es.w, elms.es.h) -- this is done in default draw...
         elms:draw()
-        scissor.exit()
+        -- scissor.exit()
     end
 end
 
 function Elements:update()
     for _, elms in pairs(self.elements) do
         elms:update()
+    end
+end
+
+function Elements:handleEvent(event)
+    if event.type == "mouserelease" then
+        local heldItem = GetHeldItem()
+
+        if heldItem then
+            local mt = getmetatable(heldItem)
+            if GetClassName(mt) == "ToolboxItem" then
+                heldItem:dropInto(self, event)
+                return true
+            end
+        end
     end
 end
 

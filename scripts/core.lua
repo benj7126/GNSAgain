@@ -1,6 +1,7 @@
-require("globalizedEvents")
 require("saveLoadManager")
+require("globalizedEvents")
 require("ensureClasses")
+require("heldItem")
 
 -- should add another layer for loading elements
 -- that are based on elements based on classes
@@ -100,24 +101,18 @@ if not loaded then
 end
 
 local topWorkspace = loaded]]
-
 --[[
-local loaded = LoadObject("core")
+local loaded = nil
 
+Reference = require("workspaces.reference")
 if not loaded then
-    loaded =  Reference:new()
+    loaded = Reference:new()
 
     loaded:resize(0, 0, 1200, 800) -- to set the workspace to the correct value
 
-    local test = Textbox:new()
-    test.es.width.percent = 1
-    test.es.height.percent = 1
-    test.elements.label.wrapping = 2
+    loaded.workspace.elements = {elm, test}
+end]]
 
-    loaded.workspace.elements = {test}
-end
-
-local topWorkspace = loaded]]
 local loaded = LoadObject("core") -- "origin" feels better, no?
 
 if not loaded then -- the defaults
@@ -202,8 +197,11 @@ function CoreUpdate()
     -- topWorkspace:resize(0, 0, 1200, 800)
 end
 
+-- stupid stuff... | need to make the scissoring work right :/
+
 function CoreDraw()
     topWorkspace:draw()
+    DrawHeldItem()
 end
 
 function Quitting()

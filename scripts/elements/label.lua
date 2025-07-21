@@ -17,8 +17,8 @@ function Label:new(forLoad)
     label.spacing = VarSpec:new(0.2)
     label.lineSpacing = VarSpec:new(0.2)
 
-    label.xCenter = false
-    label.yCenter = false
+    label.xCenter = VarSpec:new(false)
+    label.yCenter = VarSpec:new(false)
     label.textWidth = 0
     label.textHeight = 0
 
@@ -95,7 +95,7 @@ function Label:prepare()
             codepointBufferWidth = 0
             lineWidth = 0
             
-            LB:InsertBuffer(lineBuffer, {{32, 0}}) -- welp, its down here...
+            LB:insertBuffer(lineBuffer, {{32, 0}}) -- welp, its down here...
                                                    -- it works here, so let it be
 
             LB.peakTextOffsetX = math.max(LB.peakTextOffsetX, LB.textOffsetX)

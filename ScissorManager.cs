@@ -63,8 +63,16 @@ namespace GNSUsingCS
         }
 
         [LuaMethod("scissor")]
-        public static void exit()
+        public static void exit(int count = 1)
         {
+            for (int i = 0; i < count; i++)
+                _exit();
+        }
+        private static void _exit()
+        {
+            if (!ScissorLayers.Any())
+                return;
+
             ScissorLayers.Pop();
 
             if (!ScissorLayers.Any())

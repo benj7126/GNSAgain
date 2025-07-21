@@ -394,6 +394,4 @@ function Textbox:ctrlRepeatAction(action, additions, left, useLength)
     return true
 end
 
-RegisterClass(Textbox, "Textbox")
-
 return Textbox

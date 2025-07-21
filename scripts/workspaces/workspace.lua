@@ -5,6 +5,12 @@ local varSpecMT = require("varSpecMT")
 function Workspace:new()
     local workspace = {}
     
+    --[[ workspace.draw = function()
+        scissor.enter(workspace.sizes[1], workspace.sizes[2], workspace.sizes[3], workspace.sizes[4])
+        getmetatable(workspace).draw(workspace)
+        scissor.exit()
+    end]]-- this might not work with selector workspace though :/
+
     workspace.elements = {}
     
     setmetatable(workspace, self)
@@ -17,7 +23,7 @@ end
 
 function Workspace:setupRefs() end
 
-function Workspace:resize(x, y, w, h) end -- could i instead treat this as a "next time you draw, know that you should resize..?"
+function Workspace:resize(x, y, w, h) self.sizes = {x, y, w, h} end -- could i instead treat this as a "next time you draw, know that you should resize..?"
 function Workspace:_resize() self:resize(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4]) end
 
 function Workspace:draw() end -- rl.rec(0, 30, 400, 400, rl.color(0, 0, 255)) end
