@@ -5,11 +5,13 @@ RegisterClass(Elements, "W-Elements")
 function Elements:new()
     local elms = Workspace.new(Elements)
 
-    self.saveAlone = true
+    -- elms.saveAlone = true ??
 
-    self.elements = {}
-    self.workspaces = {}
-    self.sizes = nil -- if i dont use it ig i should just kill it, no?
+    elms.offset = {x=0, y=0}
+
+    elms.elements = {}
+    elms.workspaces = {}
+    elms.sizes = nil -- if i dont use it ig i should just kill it, no?
 
     return elms
 end
@@ -17,17 +19,23 @@ end
 function Elements:resize(x, y, w, h)
     self.sizes = {x, y, w, h}
 
-    for _, elms in pairs(self.elements) do
-        elms:resize(x, y, w, h)
-    end
+    --[[for _, elms in pairs(self.elements) do -- TODO; maby it should just never call resize on its sub elements..?
+                                                      --iml, not like it should make a difference; right?
+
+        elms:resize(math.mininteger, math.mininteger, math.maxinteger, math.maxinteger)
+    end]]
 end
 
 function Elements:draw()
+    scissor.enter(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4])
+
     for _, elms in pairs(self.elements) do
-        -- scissor.enter(elms.es.x, elms.es.y, elms.es.w, elms.es.h) -- this is done in default draw...
+        rl.camera.set(-self.offset.x, -self.offset.y)
         elms:draw()
-        -- scissor.exit()
+        rl.camera.reset()
     end
+    
+    scissor.exit()
 end
 
 function Elements:update()
@@ -37,22 +45,34 @@ function Elements:update()
 end
 
 function Elements:handleEvent(event)
-    if event.type == "mouserelease" then
+    if event.button == 0 and event.type == "mouserelease" then
         local heldItem = GetHeldItem()
 
         if heldItem then
             local mt = getmetatable(heldItem)
             if GetClassName(mt) == "ToolboxItem" then
+                print(event, event.pos, event.pos.X, event.pos.Y)
+                event.pos = vec(event.pos.X - self.offset.x, event.pos.Y - self.offset.y)
                 heldItem:dropInto(self, event)
                 return true
             end
         end
+    elseif event.button == 2 and event.type == "mousepress" then
+        print("b")
+        FakeDragEvent(event, function () end, function (event)
+            local vel = rl.mouse.getMouseVelocity()
+            
+            self.offset.x = self.offset.x + vel.X
+            self.offset.y = self.offset.y + vel.Y
+        end)
     end
 end
 
 function Elements:propagateEvent(event)
     event:passed(self)
     if self:handleEvent(event) then return end
+    
+    event.pos = vec(event.pos.X - self.offset.x, event.pos.Y - self.offset.y)
     local elmLoop = {}
     for _, elm in pairs(self.elements) do table.insert(elmLoop, elm) end
 

@@ -59,7 +59,7 @@ function Split:new(workspace)
 end
 
 function getVertDrag(self)
-    return function(_, button, _)
+    return function(_, button)
         if self.dragging > 0 and button == 0 then
             self.splits[self.dragging] = self:limitValue((rl.mouse.getMousePosition().Y - self.sizes[2]) / self.sizes[4])
             self:_resize()
@@ -70,7 +70,8 @@ function getVertDrag(self)
 end
 
 function getHoriDrag(self)
-    return function(_, button, _)
+    return function(_, button)
+        print(self.dragging, button)
         if self.dragging > 0 and button == 0 then
             self.splits[self.dragging] = self:limitValue((rl.mouse.getMousePosition().X - self.sizes[1]) / self.sizes[3])
             self:_resize()

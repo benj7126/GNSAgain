@@ -71,25 +71,10 @@ function Button:handleEvent(event)
 
         self.pressed[event.button] = true
         
-        PostNextEvent("mouserelease", function(nEvent)
-            if event.button == nEvent.button then
-                self.pressed[event.button] = false
-                self:anyRelease(event.button)
-                return true -- remove from list
-            end
-
-            return false -- keep it, was not the same button.
-        end)
-        
-        PostNextEvent("*", function(nEvent)
-            if nEvent.type == "mouserelease" then
-                return true -- remove from list
-            end
-
-            self:drag(event.button)
-
-            return false -- keep it
-        end)
+        FakeDragEvent(event, function ()
+            self.pressed[event.button] = false
+            self:anyRelease(event.button)
+        end, function (event) self:drag(event.button) end)
 
         return true
     elseif event.type == "mouserelease" then

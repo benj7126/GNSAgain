@@ -3,6 +3,29 @@ local eventsToRun = {
     post={["*"]={}}
 }
 
+function FakeDragEvent(event, releaesFunc, dragFunc)
+    PostNextEvent("mouserelease", function(nEvent)
+        if event.button == nEvent.button then
+            releaesFunc()
+            return true -- remove from list
+        end
+
+        return false -- keep it, was not the same button.
+    end)
+    
+    PostNextEvent("*", function(nEvent) -- should i only call drag on mousemove..?
+        if nEvent.type == "mouserelease" then
+            return true -- remove from list
+        end
+
+        if nEvent.type == "mousemoved" then
+            dragFunc(event)
+        end
+
+        return false -- keep it
+    end)
+end
+
 function PreNextEvent(type, method)
     if not eventsToRun.pre[type] then eventsToRun.pre[type] = {} end
     table.insert(eventsToRun.pre[type], method)
