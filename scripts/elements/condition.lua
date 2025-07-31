@@ -15,14 +15,20 @@ function Condition:new(forLoad, elm)
 
     if not forLoad then
         cond.elements.containing = elm or Element:new() -- could this be a varspec? - instead of in elements like this; though maby dosent matter?
+
+        cond.elements.containing.parent = cond -- this is neat and all but i would like to somehow not have to use it.
+        -- or rather, i make a smart way to have it everywhere or i have it nowhere.
+
+        -- TODO:
+        -- maby set it automatically when i load?
+        -- but like... only if it was a parent when it was saved.
     end
 
-    elm.parent = cond
-    
     return cond
 end
 
 function Condition:resize(x, y, w, h)
+    print(getmetatable(self.es), self.es.x, self.es.left.percent)
     self.es:recalculate(x, y, w, h)
     self.elements.containing:resize(self.es.x, self.es.y, self.es.w, self.es.h)
 end

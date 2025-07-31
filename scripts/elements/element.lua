@@ -20,8 +20,8 @@ end
 
 local ElementStyle = {}
 
-ElementStyle.saveAll = true -- tmp solution
-function ElementStyle:saveRules(rules)
+ElementStyle.saveAll = true -- tmp solution | should probably be a ElementStyle VarSpec type.
+function ElementStyle:saveRules(rules) -- this is not used any more; have to make it be reflected in varSpec ^^
     rules["left"] = 0
     rules["top"] = 0
     rules["width"] = 0
@@ -93,7 +93,7 @@ function Element:new(forLoad) -- tmp solution?
 
     -- intergrate 'VarSpecs' into __index and __newindex
 
-    element.es = VarSpec:new(ElementStyle:new())
+    element.es = ElementStyle:new() -- when i get the time; make it -> VarSpec:new(ElementStyle:new())
     element.elements = {}
     element.parent = nil
 

@@ -16,6 +16,9 @@ function SetHeldItem(item, extraOffset)
     end
 end]]
 
+-- when dropping an item; what should i do if i somehow have an elements workspace inside an elements workspace (with a workspace element between ig.)
+-- should it just save last viable drop instance and then; when theres no more sub-objects
+
 function SetHeldItem(item)
     heldItem = item
 end

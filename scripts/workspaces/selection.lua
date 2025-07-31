@@ -4,6 +4,7 @@ local Button = require("elements.button")
 
 local Selection = {}
 RegisterClass(Selection, "W-Selection")
+local VarSpec = require("varSpec")
 
 -- make it so that you cant have two of the same things in each other by using this; seems dumb.
 
@@ -31,6 +32,7 @@ function Selection:new(parentMT)
 
     sel.selector = Box:new()
     sel.selector.color = rl.color(100, 100, 100)
+    print(sel.selector.color, sel.selector.color.R, "---")
     --sel.selector.draw = require("modules.draw.reverseDraw") -- want to make this a VarSpec at some point
     
     sel.selector.es.width.pixels = -20

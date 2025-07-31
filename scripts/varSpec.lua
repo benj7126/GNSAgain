@@ -1,8 +1,6 @@
 local VarSpecs = {}
 
-VarSpecs.options = {
-    ["code"] = require("VarSpecs.code"),
-}
+VarSpecTypes = {}
 
 -- could have custom saving option
 -- so that it used that to save the value
@@ -21,10 +19,23 @@ function VarSpecs:new(value, options)
     self.__index = self
     vs.options = options or {}
 
-    for option, v in pairs(vs.options) do
-        if VarSpecs.options[option] then
-            VarSpecs.options[option](vs, v)
+    local highest = {nil, nil}
+
+    for typeEval, applyType in pairs(VarSpecTypes) do
+        local eval = typeEval(vs, value)
+        if eval > 0 then
+            if not highest[1] or eval > highest[1] then
+                highest = {eval, applyType}
+            elseif highest[1] and highest[1] == eval then
+                print("potential confilcit in evaluation of varSpec type for; " .. tostring(value) .. " | " .. type(value))
+            end
         end
+    end
+
+    if highest[1] then
+        highest[2](vs)
+    else
+        print("no viable varSpec type for; " .. tostring(value) .. " | " .. type(value))
     end
 
     vs.options.save = vs.options.save or true -- have true as default -- should change this to the other thing..?
@@ -44,6 +55,10 @@ end
 
 function VarSpecs:toSaveValue()
     return self.value
+end
+
+function VarSpecs:fromSaveValue(v)
+    self:set(v)
 end
 
 return VarSpecs

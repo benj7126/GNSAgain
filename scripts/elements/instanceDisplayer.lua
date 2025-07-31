@@ -1,7 +1,7 @@
 -- bad name but what can you do?
 local Element = require("elements.element")
 local InstanceDisplayer = Element:from()
-RegisterClass(InstanceDisplayer, "Condition")
+RegisterClass(InstanceDisplayer, "InstanceDisplayer")
 local VarSpec = require("varSpec")
 
 InstanceDisplayer.Elements = {}
@@ -21,7 +21,7 @@ function InstanceDisplayer:new(forLoad, displayID)
 
     idspl.elements = nil
 
-    idspl.displayElement = displayID or ""
+    idspl.displayElement = VarSpec:new(displayID or "")
 
     return idspl
 end

@@ -8,6 +8,7 @@ function Elements:new()
     -- elms.saveAlone = true ??
 
     elms.offset = {x=0, y=0}
+    elms.zoom = 1
 
     elms.elements = {}
     elms.workspaces = {}
@@ -58,8 +59,7 @@ function Elements:handleEvent(event)
             end
         end
     elseif event.button == 2 and event.type == "mousepress" then
-        print("b")
-        FakeDragEvent(event, function () end, function (event)
+        FakeDragEvent(event, function () end, function (_)
             local vel = rl.mouse.getMouseVelocity()
             
             self.offset.x = self.offset.x + vel.X
@@ -71,7 +71,7 @@ end
 function Elements:propagateEvent(event)
     event:passed(self)
     if self:handleEvent(event) then return end
-    
+
     event.pos = vec(event.pos.X - self.offset.x, event.pos.Y - self.offset.y)
     local elmLoop = {}
     for _, elm in pairs(self.elements) do table.insert(elmLoop, elm) end

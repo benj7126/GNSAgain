@@ -10,7 +10,7 @@ function Box:new(forLoad)
                                     -- and vec, tbf, be lua tables.
                                     -- cuz easier saving and loading.
                                     -- *less stupid
-
+    
     return b
 end
 

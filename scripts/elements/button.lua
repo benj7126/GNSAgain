@@ -4,6 +4,8 @@ local Label = require("elements.label")
 local Button = Element:from()
 RegisterClass(Button, "Button")
 
+print(Label:new().text, Box:new().color, "------------------------")
+
 -- maby no base elements should add elements to its elements list..?
 
 function Button:new(forLoad)

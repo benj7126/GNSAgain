@@ -58,34 +58,36 @@ function BreakdownObject(obj, indent, ami) -- this could be used for any object,
     end
 
     for i, v in pairs(obj) do
-        if not saveAll then
-            if getmetatable(v) == VarSpec and v.options.save == true then
-                v = v:toSaveValue()
-                i = i:sub(2, #i)
+        if getmetatable(v) == VarSpec and v.options.save == true then
+            v = v:toSaveValue(indent, ami)
+            i = i:sub(2, #i)
+        elseif saveAll then
+            local t = type(v)
+            
+            if t == "table" then
+                v = "{"..BreakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
+            elseif t == "userdata" then
+                v = nil -- currently dont save userdata
+            elseif t == "function" then
+                v = nil -- currently dont save functions
+            elseif t == "boolean" then
+                if v then
+                    v = "true"
+                else
+                    v = "false"
+                end
+            elseif t == "string" then
+                v = '[[' .. v .. ']]'
+            elseif t == "number" then
+                v = v
             else
                 v = nil
             end
+        else
+            v = nil
         end
 
         -- also check against base somehow...
-
-        local t = type(v)
-
-        if t == "table" then
-            v = "{"..BreakdownObject(v, indent.."\t", ami) .. "\n"..indent.."}"
-        elseif t == "userdata" then
-            v = nil -- currently dont save userdata
-        elseif t == "function" then
-            v = nil -- currently dont save functions
-        elseif t == "boolean" then
-            if v then
-                v = "true"
-            else
-                v = "false"
-            end
-        elseif t == "string" then
-            v = '[[' .. v .. ']]'
-        end
 
         if v then
             if onlyNumberIndex then
@@ -96,10 +98,15 @@ function BreakdownObject(obj, indent, ami) -- this could be used for any object,
         end
     end
 
-    if obj.elements then
+    local hasElms = false
+    if obj.elements then for _, _ in pairs(obj.elements) do hasElms = true end end
+    if hasElms then -- would like to make this use varSpec too? - and below
         string = string .. "\n" .. indent .. "elements = {"..BreakdownObject(elmWorkspaceListHelper(obj.elements, ami, "e"), indent.."\t", ami) .. "\n"..indent.."},"
     end
-    if obj.workspaces then
+
+    local hasWksp = false
+    if obj.workspaces then for _, _ in pairs(obj.workspaces) do hasWksp = true end end
+    if hasWksp then
         string = string .. "\n" .. indent .. "workspaces = {"..BreakdownObject(elmWorkspaceListHelper(obj.workspaces, ami, "w"), indent.."\t", ami) .. "\n"..indent.."},"
     end
 
@@ -130,15 +137,19 @@ end
 
 local function applyModification(table, mod)
     for i, v in pairs(mod) do
-        local didGoDownDepth = false
-        if type(v) == "table" then
-            if table[i] then
-                applyModification(table[i], v)
-                didGoDownDepth = true
+        if table["_"..i] and getmetatable(table["_"..i]) == VarSpec then
+            table["_"..i]:fromSaveValue(v)
+        else
+            local didGoDownDepth = false
+            if type(v) == "table" then
+                if table[i] then
+                    applyModification(table[i], v)
+                    didGoDownDepth = true
+                end
             end
-        end
 
-        if not didGoDownDepth then table[i] = v end
+            if not didGoDownDepth then table[i] = v end
+        end
     end
 end
 
@@ -169,6 +180,7 @@ local function elmWorkspaceSetupListHelper(list, ami, char)
     for _, v in pairs(objList) do
         ami:enter(char.."-"..v)
         local obj = CreateObjectFromAMI(ami)
+        print("containing?; ", v, obj)
         newObjects[v] = obj
         ami:exit()
     end

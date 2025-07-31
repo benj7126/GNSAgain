@@ -1,5 +1,6 @@
 require("saveLoadManager")
 require("globalizedEvents")
+require("varSpec") -- to make sure they dont get mad about missing VarSpecTypes table.
 require("ensureClasses")
 require("heldItem")
 

@@ -17,6 +17,8 @@ namespace GNSAgain.luaLinkings
         public static void Setup(Lua L)
         {
             L["vec"] = (float x, float y) => new Vector2(x, y);
+            L["isVec"] = (object maybeVec) => maybeVec is Vector2;
+            L["isColor"] = (object maybeColor) => maybeColor is Color;
             L.NewTable("rl");
             LuaTable rlTable = L.GetTable("rl");
             rlTable["rec"] = DrawRectangle;

@@ -1,5 +1,8 @@
 local VarSpec = require("varSpec")
 
+-- should probably have either some sort of warning if i set the value of a varspec to another varspec?
+-- or just override the current varspec?
+
 return function (MT)
     MT.__index = function(t, k)
         local value = rawget(t, k)
