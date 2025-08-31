@@ -6,7 +6,7 @@ local VarSpec = require("varSpec")
 return function (MT)
     MT.__index = function(t, k)
         local value = rawget(t, k)
-        
+
         if not value then
             value = rawget(t, "_"..k)
             if value then value = value:get() end
@@ -26,6 +26,12 @@ return function (MT)
         end
 
         if getmetatable(v) == VarSpec and k:sub(1, 1) ~= "_" then
+            if not t._varSpecID then t._varSpecID = 0 end
+            t._varSpecID = t._varSpecID + 1
+
+            v.index = t._varSpecID
+            v.field = k
+
             rawset(t, "_"..k, v)
             return
         end

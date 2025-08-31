@@ -35,6 +35,13 @@ namespace GNSAgain
             L.DoString(Modules["core"]); // should be a setting - default module name?
         }
 
+        public static bool SameTable(LuaTable a, LuaTable b)
+        {
+            NLua.LuaFunction sameTableFn = L.DoString("return function(a, b) return a == b end")[0] as NLua.LuaFunction;
+
+            return (bool)sameTableFn.Call(a, b)[0];
+        }
+
         private static void callFunctionFromCode(string code, string functionName, params object[] args)
         {
             using (var lua = new NLua.Lua())
@@ -196,7 +203,7 @@ namespace GNSAgain
         public static void CallFromPath(string functionName, params object[] objs)
         {
             if (L.GetObjectFromPath(functionName) is NLua.LuaFunction func)
-                func.Call(objs);
+                    func.Call(objs);
         }
 
         internal static void CoreUpdate()
@@ -225,8 +232,15 @@ namespace GNSAgain
             {
                 if (luaTable["handleEvent"] is NLua.LuaFunction func)
                 {
-                    bool consumed = (bool)func.Call(luaTable, @event)[0];
+                    object[] t = func.Call(luaTable, @event);
 
+                    if (!t.Any())
+                    {
+                        // TODO: report to error otuput; some 'handleEvent' [something] is missing a return
+                        continue;
+                    }
+
+                    bool consumed = (bool)t[0];
                     if (consumed)
                         return;
                 }

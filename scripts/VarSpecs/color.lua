@@ -1,5 +1,5 @@
 VarSpecTypes[function (varSpec, initialValue)
-    if isColor(initialValue) then return 1 else return -1 end
+    if isColor(initialValue) then return 2 else return -1 end
 end] = function (varSpec)
     varSpec.toSaveValue = function (self)
         local c = self:get()

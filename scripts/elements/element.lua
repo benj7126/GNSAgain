@@ -1,16 +1,20 @@
 -- should be in elements as it is an "empty" element
 -- potentially for events..?
 
+local VarSpecMT = require("varSpecMT")
+local VarSpec = require("varSpec")
+
 local StyleDimension = {}
+VarSpecMT(StyleDimension)
 
 StyleDimension.saveAll = true -- tmp solution
 function StyleDimension:new(p)
     local sd = {}
     setmetatable(sd, self)
-    self.__index = self
-    
-    sd.pixels, sd.percent = 0, p
-    
+    -- self.__index = self -- using varSpecMT
+
+    sd.pixels, sd.percent = VarSpec:new(0), VarSpec:new(p)
+
     return sd
 end
 
@@ -19,6 +23,7 @@ function StyleDimension:getValue(containerSize)
 end
 
 local ElementStyle = {}
+VarSpecMT(ElementStyle)
 
 ElementStyle.saveAll = true -- tmp solution | should probably be a ElementStyle VarSpec type.
 function ElementStyle:saveRules(rules) -- this is not used any more; have to make it be reflected in varSpec ^^
@@ -34,17 +39,17 @@ end
 function ElementStyle:new()
     local es = {}
     setmetatable(es, self)
-    self.__index = self
+    -- self.__index = self -- using varSpecMT
 
-    es.left = StyleDimension:new(0.0)
-    es.top = StyleDimension:new(0.0)
+    es.left = VarSpec:new(StyleDimension:new(0.0))
+    es.top = VarSpec:new(StyleDimension:new(0.0))
 
-    es.width = StyleDimension:new(1.0)
-    es.height = StyleDimension:new(1.0)
+    es.width = VarSpec:new(StyleDimension:new(1.0))
+    es.height = VarSpec:new(StyleDimension:new(1.0))
 
     es.x, es.y, es.w, es.h = 0, 0, 0, 0
 
-    es.vAlign, es.hAlign = 0, 0
+    es.vAlign, es.hAlign = VarSpec:new(0), VarSpec:new(0)
 
     return es
 end
@@ -69,8 +74,6 @@ function ElementStyle:contains(x, y)
     end
 end
 
-local VarSpecMT = require("varSpecMT")
-
 local Element = {}
 Element.__index = Element
 RegisterClass(Element, "Element")
@@ -84,21 +87,16 @@ function Element:from() --          i do 'from' because i dont want to override
     return newMT
 end
 
-local VarSpec = require("varSpec")
-
 local id = 0
 function Element:new(forLoad) -- tmp solution?
     local element = {}
     setmetatable(element, self)
 
-    -- intergrate 'VarSpecs' into __index and __newindex
+    element.name = VarSpec:new("")
 
-    element.es = ElementStyle:new() -- when i get the time; make it -> VarSpec:new(ElementStyle:new())
+    element.es = VarSpec:new(ElementStyle:new())
     element.elements = {}
     element.parent = nil
-
-    element.id = id -- element id test thing
-    id = id + 1
 
     element.draw = require("modules.draw.defaultDraw") -- when making an inspector there should be and element that
                                                        -- lets you add a bunch of functions and switch between them

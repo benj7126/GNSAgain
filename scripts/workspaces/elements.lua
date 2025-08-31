@@ -20,11 +20,11 @@ end
 function Elements:resize(x, y, w, h)
     self.sizes = {x, y, w, h}
 
-    --[[for _, elms in pairs(self.elements) do -- TODO; maby it should just never call resize on its sub elements..?
-                                                      --iml, not like it should make a difference; right?
-
+    for _, elms in pairs(self.elements) do
         elms:resize(math.mininteger, math.mininteger, math.maxinteger, math.maxinteger)
-    end]]
+        elms:resize(0, 0, math.maxinteger, math.maxinteger)
+        print(elms.es.x, elms.es.y, elms.es.w, elms.es.h)
+    end
 end
 
 function Elements:draw()
@@ -66,6 +66,7 @@ function Elements:handleEvent(event)
             self.offset.y = self.offset.y + vel.Y
         end)
     end
+    return false
 end
 
 function Elements:propagateEvent(event)

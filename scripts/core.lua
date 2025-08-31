@@ -114,13 +114,13 @@ if not loaded then
     loaded.workspace.elements = {elm, test}
 end]]
 
-local loaded = LoadObject("core") -- "origin" feels better, no?
+--[[local loaded = LoadObject("core") -- "origin" feels better, no?
 
 if not loaded then -- the defaults
     loaded = Stacked:new(Split:new(Selection:new(Split))) -- should maby be a reference to a 'main' elements workspace?
     loaded:addWorkspace(Split:new(Selection:new(Split))) -- then this should be a split, at like 0.2~0.3 with toolbox at left and editor at right
     loaded:addWorkspace(Split:new(Selection:new(Split))) -- and lastly; settings..?
-end
+end]]
 
 ---- important stuff;;; \/
 
@@ -128,7 +128,55 @@ end
 -- working on making split work with string-based stuff.
 -- i also need to save/load the parent.
 
-local topWorkspace = loaded
+local topWorkspace = nil --loaded
+
+topWorkspace = require("workspaces.elements"):new()
+
+ObjectTree = require("elements.objectTree")
+local oTree = ObjectTree:new()
+oTree.es.width.pixels = 100
+oTree.es.height.pixels = 1000
+oTree.es.width.percent = 0
+oTree.es.height.percent = 0
+
+oTree.es.left.pixels = 240
+
+local button = require("elements.button"):new()
+button.es.width.pixels = 100
+button.es.height.pixels = 100
+button.es.width.percent = 0
+button.es.height.percent = 0
+
+local b1 = require("elements.button"):new()
+local b2 = require("elements.button"):new()
+
+b1.es.width.pixels = 100
+b1.es.height.pixels = 100
+b1.es.width.percent = 0
+b1.es.height.percent = 0
+
+b2.es.width.pixels = 100
+b2.es.height.pixels = 100
+b2.es.width.percent = 0
+b2.es.height.percent = 0
+
+ObjectTree.objectSelection[oTree.objectID] = button
+
+Inspector = require("elements.inspector")
+local insp = Inspector:new()
+insp:setID(oTree.objectID)
+
+insp.es.width.pixels = 1000
+insp.es.height.pixels = 1000
+insp.es.width.percent = 0
+insp.es.height.percent = 0
+
+insp.es.left.pixels = 480
+Inspector.objectSelection[insp.objectID] = button.elements[2]
+
+table.insert(topWorkspace.elements, oTree);
+table.insert(topWorkspace.elements, button);
+table.insert(topWorkspace.elements, insp);
 
 --[[
 local TraversableTree = require("elements.traversableTree")
@@ -190,12 +238,13 @@ end
  -- notes should be able to be pulled into 'categories'/sub-workspace
 
 function CoreUpdate()
+    button:resize(0, 0, 0, 0)
+
     -- print(test.elements.label.text)
     topWorkspace:update()
 
     -- tmp test for save and load
     -- b.elements[2] = CreateElementFromString(test.elements[1].text) or b.elements[2]
-    -- topWorkspace:resize(0, 0, 1200, 800)
 end
 
 -- stupid stuff... | need to make the scissoring work right :/

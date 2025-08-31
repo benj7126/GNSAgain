@@ -8,13 +8,17 @@ RegisterClass(Editor, "W-Editor")
 
 function Editor:new()
     local editor = Workspace.new(Editor)
-    
+
+    editor.editorId = getUUID() -- pass this onto inspector and elementBreakdown on creation and make it link all good.
+
     -- this and 'elements' could be based on the same thing that let's you pan and zoom.
     editor.offset = {x=0, y=0}
     editor.zoom = 1
 
     editor.elm = nil -- should be in a note
     editor.toolboxItem = nil
+    
+    self.workspaces = {}
 
     return editor
 end

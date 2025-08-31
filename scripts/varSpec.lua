@@ -45,6 +45,10 @@ function VarSpecs:new(value, options)
     return vs
 end
 
+function VarSpecs:inspectorElement()
+    print("missing, varSpec")
+end
+
 function VarSpecs:get()
     return self.value
 end

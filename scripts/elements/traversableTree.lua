@@ -1,6 +1,7 @@
 local Element = require("elements.element")
 local List = require("elements.list")
 local Button = require("elements.button")
+local FreeContainer = require("elements.freeContainer")
 local TraversableTree = Element:from()
 RegisterClass(TraversableTree, "TraversableTree")
 local VarSpec = require("varSpec")
@@ -10,7 +11,8 @@ function TraversableTree:new(forLoad)
 
     tree.sortFunc = nil -- needs to be code
     tree.contents = {}
-    tree.offset = 20
+    self.names = {}
+    tree.offset = 16
     tree.spacing = 2
 
     tree.lastSizes = {0, 0, 0, 0}
@@ -18,29 +20,43 @@ function TraversableTree:new(forLoad)
     return tree
 end
 
+local function deepPrint(object, depth)
+    for i = 1, #object do
+        if type(object[i]) == "table" then
+            if getmetatable(object[i]) == nil then
+                deepPrint(object[i], depth.."-")
+            else
+                print(depth, object[i])
+            end
+        else
+            print(depth, object[i])
+        end
+    end
+end
+
 function TraversableTree:updateList()
     -- should probably have a way to insert and add instead of self.contents so i dont have to re-make the whole thing each time
     -- but this is a temporary solution like many others.
 
-    local list = self:getListOf(self.contents, 0)
+    print("update - list")
+    deepPrint(self.contents, "")
+    local list = self:getListOf(self.contents, 0, self.names)
     self.elements.list = list
-    
+
     if self.elements.list then self.elements.list:resize(self.es.x, self.es.y, self.es.w, self.es.h) end
 end
 
-function TraversableTree:getCollapseButton(items, offset)
+function TraversableTree:getCollapseButton(inputList, offset)
     local button = Button:new()
 
-    local str = items[1]
-
-    if str:sub(1,1) == "_" then -- add another label that holds 'v' and '>'? maby think of other characters?
-        button.elements[2].text = "< "..str:sub(2, #str)
+    if inputList[1] == true then
+        button.elements[2].text = "<"
     else
-        button.elements[2].text = "> "..str
+        button.elements[2].text = ">"
     end
 
     button.es.width.percent = 0
-    button.es.width.pixels = self.es.w - offset
+    button.es.width.pixels = 16
     button.es.height.percent = 0
     button.es.height.pixels = 16
     button.elements[2].fontSize = 16
@@ -52,12 +68,8 @@ function TraversableTree:getCollapseButton(items, offset)
 
     button.click = function (_, button)
         if button == 0 then
-            if items[1]:sub(1, 1) == "_" then
-                items[1] = items[1]:sub(2, #items[1])
-            else
-                items[1] = "_"..items[1]
-            end
-            
+            inputList[1] = not inputList[1] -- flip it
+
             self:resize(self.parentSizes[1], self.parentSizes[2], self.parentSizes[3], self.parentSizes[4])
         end
     end
@@ -65,29 +77,77 @@ function TraversableTree:getCollapseButton(items, offset)
     return button
 end
 
-function TraversableTree:getListOf(items, offset)
+function TraversableTree:getFunctionButton(string, func, offset)
+    local button = Button:new()
+
+    button.elements[2].text = string
+
+    button.elements[2]:prepare()
+
+    button.es.width.percent = 0
+    button.es.width.pixels = button.elements[2].textWidth
+    button.es.height.percent = 0
+    button.es.height.pixels = 16
+    button.elements[2].fontSize = 16
+    
+    button.elements[2].xCenter = false
+    button.elements[2].es.left.pixels = 2
+
+    button.listOffsetX = offset - self.offset
+
+    button.click = function (_, button)
+        if button == 0 then
+            func()
+        end
+    end
+
+    return button
+end
+
+function TraversableTree:getListOf(inputList, offset, names)
+    names = names or {}
+
+    local items = {}
+    for i = 1, #inputList do
+        if type(inputList[i]) == "function" then
+            local name = "func - " .. i
+            if names[i] then name = names[i] end
+
+            table.insert(items, self:getFunctionButton(name, inputList[i], offset))
+        else
+            table.insert(items, inputList[i])
+        end
+    end
+
+    if #items <= 1 then return nil end
+
     local list = List:new()
     list.adjustToHeight = true
     list.allowCustomW = true
     list.ySpacing = self.spacing
+    
+    local header = self:getCollapseButton(inputList, offset)
 
-    local header;
-    local hasHeader = 1
-    if items[1] and type(items[1]) == "string" then
-        hasHeader = 2
-        header = self:getCollapseButton(items, offset)
+    local collected = FreeContainer:new()
+    collected.listOffsetX = offset
+    collected.elements = {header, items[2]}
+    items[2].es.left.pixels = 16
 
-        if items[1]:sub(1, 1) == "_" then
-            return nil, header
-        end
+    if items[1] == false then -- if it is collapsed
+        return collected
     end
 
-    for i = hasHeader, #items do
+    table.insert(list.elements, collected)
+    offset = offset + self.offset
+
+    for i = 3, #items do
+        local _names = {}
+        if names[i] then _names = names[i] end
+
         local obj = items[i]
         if getmetatable(obj) == nil then -- if no metatable; then its not an element
-            local subList, subHeader = self:getListOf(obj, offset + self.offset)
-            if subHeader then table.insert(list.elements, subHeader) end
-            if subList then table.insert(list.elements, subList) end
+            local subObject = self:getListOf(obj, offset, _names)
+            if subObject then table.insert(list.elements, subObject) end
         else
             obj.listOffsetX = offset
             table.insert(list.elements, obj)
@@ -98,10 +158,11 @@ function TraversableTree:getListOf(items, offset)
         table.sort(list.elements, self.sortFunc)
     end
 
-    return list, header
+    return list
 end
 
 function TraversableTree:resize(x, y, w, h)
+    print(x, y, w, h)
     self.parentSizes = {x, y, w, h}
     self.es:recalculate(x, y, w, h)
 

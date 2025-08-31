@@ -5,7 +5,7 @@ local VarSpec = require("varSpec")
 
 local alottedSize = 0 -- how much percent dose to this; idk if it should do any... should it? it probably should in same (or maby most cases..? - like for trello thing and others like it.)
 
-function NoteWrapper:new(forLoad, elm, x, y) -- tmp, would like some other way to decide on this.
+function NoteWrapper:new(forLoad, elmID, x, y) -- tmp, would like some other way to decide on this.
     local nw = Element.new(NoteWrapper, forLoad)
 
     nw.elements.containing = elm or Element:new()

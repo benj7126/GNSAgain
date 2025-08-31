@@ -22,6 +22,10 @@ function Condition:new(forLoad, elm)
         -- TODO:
         -- maby set it automatically when i load?
         -- but like... only if it was a parent when it was saved.
+
+        -- is chainging the insert function to check if you place an item inside an element and make that its parent a dumb idea..?
+
+        -- or assign parents each resize.
     end
 
     return cond

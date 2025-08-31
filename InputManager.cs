@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using GNSAgain;
 using NLua;
+using KeraLua;
 
 namespace GNSUsingCS
 {
@@ -51,12 +52,15 @@ namespace GNSUsingCS
         [LuaMethod("rl")]
         private static void setInput(Event luaEvent)
         {
-            _fakeEventOrder = luaEvent.chain;
+            _fakeEventOrder = luaEvent.chain;   
         }
 
         [LuaMethod("rl")]
         private static bool checkReceiving(LuaTable obj)
         {
+            if (!_fakeEventOrder.Any())
+                return false;
+
             return _fakeEventOrder.Contains(obj);
         }
         

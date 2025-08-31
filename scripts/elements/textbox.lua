@@ -30,12 +30,15 @@ function Textbox:new(forLoad)
 
         draw(...)
 
-        local label = tb.elements.label
-        rl.rec(label.es.x + Textbox.cursorVisualX, label.es.y + Textbox.cursorVisualY, 1, label.fontSize, tb.cursorColor);
+        if rl.checkReceiving(tb) then
+            local label = tb.elements.label
+            rl.rec(label.es.x + Textbox.cursorVisualX, label.es.y + Textbox.cursorVisualY, 1, label.fontSize, tb.cursorColor);
+        end
     end
 
     tb.highlightColor = VarSpec:new(rl.color(0, 0, 200, 100))
     tb.cursorColor = VarSpec:new(rl.color(255, 150, 0))
+    tb.textChanged = VarSpec:new("", {code={}})
 
     -- if it is loaded from disc then it will already have a label.
     if not forLoad then
@@ -47,6 +50,8 @@ function Textbox:new(forLoad)
 
         tb.elements.label = label
     end
+
+    tb.lastText = tb.elements.label.text
 
     return tb
 end
@@ -158,10 +163,12 @@ function Textbox:draw()
     local textOffsetY = 0
     local textOffsetX = 0
 
+    local doHighlight = rl.checkReceiving(self)
+
     for _, line in pairs(label.lines) do
         for _, char in pairs(line) do
-            if Textbox.highlightPosition ~= Textbox.cursorPosition and Textbox.highlightPosition ~= -1 and InBetween(curIndex, Textbox.highlightPosition, Textbox.cursorPosition) then
-                rl.rec(label.es.x + math.floor(textOffsetX), label.es.y + math.floor(textOffsetY), math.ceil(char.width), label.fontSize, self.highlightColor);
+            if doHighlight and (Textbox.highlightPosition ~= Textbox.cursorPosition and Textbox.highlightPosition ~= -1 and InBetween(curIndex, Textbox.highlightPosition, Textbox.cursorPosition)) then
+                rl.rec(label.es.x + math.floor(textOffsetX), label.es.y + math.floor(textOffsetY), math.floor(char.width), label.fontSize, self.highlightColor);
             end
 
             curIndex = curIndex + 1
@@ -347,6 +354,11 @@ function Textbox:handleEvent(event)
             Textbox.savedCursorVisualX = -1 -- if you click a key that is not up or down; use actual x for this
         end
     end
+
+    if (self.lastText ~= label.text) then
+        self:textChanged()
+    end
+
     return false
 end
 

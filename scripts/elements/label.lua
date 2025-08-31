@@ -144,8 +144,12 @@ function Label:prepare()
     self.textWidth = math.max(LB.peakTextOffsetX, LB.textOffsetX)
 
     if self.textSizeFit then
+        print(self.es.w, self.es.h, self.es.width.pixels, self.es.width.percent, self.es.height.pixels, self.es.height.percent)
+        
         local widthRatio = self.es.w / self.textWidth
         local heightRatio = self.es.h / self.textHeight
+
+        print("ratio; ", widthRatio, heightRatio, self.textWidth, self.textHeight)
 
         local newFontSize = 1
         if widthRatio < heightRatio then -- adjust with width ratio
@@ -154,11 +158,15 @@ function Label:prepare()
             newFontSize = math.floor(self.fontSize * heightRatio)
         end
 
+        print("sizes; ", newFontSize, self.fontSize)
+
         local actualRatio = newFontSize / self.fontSize
         self.textHeight = self.textHeight * actualRatio
         self.textWidth = self.textWidth * actualRatio
 
         self.fontSize = newFontSize
+
+        print("became", actualRatio)
 
         for _, line in pairs(self.lines) do
             for _, char in pairs(line) do

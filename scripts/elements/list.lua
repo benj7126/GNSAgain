@@ -25,6 +25,7 @@ function List:new(forLoad)
 end
 
 function List:resize(x, y, w, h)
+    print("prepping list;")
     self.es:recalculate(x, y, w, h)
 
     if self.cols < 1 then self.cols = 1 end
@@ -77,6 +78,8 @@ function List:resize(x, y, w, h)
         elm:resize(self.es.x, self.es.y, self.es.w, self.es.h)
 
         offsetX = offsetX + elm.es.w + self.xSpacing -- only used if customw allowed
+
+        print(elm.es.h, "some space")
 
         if self.type == 2 then
             offsetY[thisIdxY + 1] = offsetY[thisIdxY + 1] + elm.es.h + self.ySpacing

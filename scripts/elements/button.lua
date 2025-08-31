@@ -43,27 +43,27 @@ function Button:new(forLoad)
 end
 
 function Button:press(button)
-    print("press a button", button)
+    -- print("press a button", button)
     -- run some function of the code that i dont have yet, ig.
 end
 
 function Button:anyRelease(button)
-    print("release a press anywhere", button)
+    -- print("release a press anywhere", button)
     -- run some function of the code that i dont have yet, ig. | just if it ever releases; not just inside the button
 end
 
 function Button:release(button)
-    print("release in a button", button)
+    -- print("release in a button", button)
     -- run some function of the code that i dont have yet, ig.
 end
 
 function Button:click(button)
-    print("click a button", button)
+    -- print("click a button", button)
     -- run some function of the code that i dont have yet, ig.
 end
 
 function Button:drag(button)
-    print("drag from a button", button)
+    -- print("drag from a button", button)
     -- run some function of the code that i dont have yet, ig.
 end
 
