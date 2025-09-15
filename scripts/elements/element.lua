@@ -5,9 +5,9 @@ local VarSpecMT = require("varSpecMT")
 local VarSpec = require("varSpec")
 
 local StyleDimension = {}
+RegisterClass(StyleDimension, "_StyleDimension") -- needed
 VarSpecMT(StyleDimension)
 
-StyleDimension.saveAll = true -- tmp solution
 function StyleDimension:new(p)
     local sd = {}
     setmetatable(sd, self)
@@ -23,10 +23,11 @@ function StyleDimension:getValue(containerSize)
 end
 
 local ElementStyle = {}
+RegisterClass(ElementStyle, "_ElementStyle")
 VarSpecMT(ElementStyle)
 
 ElementStyle.saveAll = true -- tmp solution | should probably be a ElementStyle VarSpec type.
-function ElementStyle:saveRules(rules) -- this is not used any more; have to make it be reflected in varSpec ^^
+--[[function ElementStyle:saveRules(rules) -- this is not used any more; have to make it be reflected in varSpec ^^
     rules["left"] = 0
     rules["top"] = 0
     rules["width"] = 0
@@ -34,7 +35,7 @@ function ElementStyle:saveRules(rules) -- this is not used any more; have to mak
     
     rules["vAlign"] = 0
     rules["hAlign"] = 0
-end
+end]]
 
 function ElementStyle:new()
     local es = {}
@@ -78,6 +79,8 @@ local Element = {}
 Element.__index = Element
 RegisterClass(Element, "Element")
 VarSpecMT(Element) -- applies to element(this)
+
+-- having a thing where i can do self.label and it checks if there is a 'label' in self.elements could be nice..?
 
 function Element:from() --          i do 'from' because i dont want to override
     local newMT = {}  --          any methods "subclassing"

@@ -7,6 +7,8 @@ local VarSpec = require("varSpec")
 -- would like to write this less ugly.
 -- would like even more to have a program though; so later.
 
+-- figure something out for 'label._text.value'
+
 -- "static variables"
 Textbox.cursorVisualX = 0;
 Textbox.cursorVisualY = 0;
@@ -46,12 +48,10 @@ function Textbox:new(forLoad)
         label.es.width.percent = 1
         label.es.height.percent = 1
 
-        label.text = ""
-
         tb.elements.label = label
     end
 
-    tb.lastText = tb.elements.label.text
+    tb.lastGen = tb.elements.label._text.value.gen
 
     return tb
 end
@@ -181,16 +181,12 @@ function Textbox:draw()
 end
 
 function Textbox:delete()
-    local label = self.elements.label
-
-    label.text = label.text:sub(1, Textbox.cursorPosition) .. label.text:sub(Textbox.cursorPosition+2, #label.text)
+    self.elements.label._text.value:removeAt(Textbox.cursorPosition+1)
 end
 
 function Textbox:backspace()
-    local label = self.elements.label
-    
     if Textbox.cursorPosition ~= 0 then
-        label.text = label.text:sub(1, Textbox.cursorPosition-1) .. label.text:sub(Textbox.cursorPosition+1, #label.text)
+        self.elements.label._text.value:removeAt(Textbox.cursorPosition)
 
         Textbox.cursorPosition = Textbox.cursorPosition - 1
     end
@@ -199,7 +195,7 @@ end
 function Textbox:right()
     local label = self.elements.label
     if Textbox.cursorPosition ~= #self.elements.label.text then
-        local movePast = label.text:sub(Textbox.cursorPosition+1, Textbox.cursorPosition+1)
+        local movePast = label._text.value:valueAt(Textbox.cursorPosition+1)
         
         if movePast ~= "\n" then
             Textbox.cursorVisualX = Textbox.cursorVisualX + rl.getCharWidth(movePast, label.fontName, label.fontSize, label.spacing)
@@ -216,7 +212,7 @@ function Textbox:left()
     local label = self.elements.label
 
     if Textbox.cursorPosition ~= 0 then
-        local movePast = label.text:sub(Textbox.cursorPosition, Textbox.cursorPosition)
+        local movePast = label._text.value:valueAt(Textbox.cursorPosition)
 
         Textbox.cursorPosition = Textbox.cursorPosition - 1
 
@@ -239,7 +235,7 @@ function Textbox:deleteSelectedArea()
             Textbox.cursorPosition = hp
         end
 
-        label.text = label.text:sub(1, Textbox.cursorPosition) .. label.text:sub(Textbox.highlightPosition+1, #label.text)
+        label._text.value:removeRange(Textbox.cursorPosition, Textbox.highlightPosition+1)
     end
 end
 
@@ -287,10 +283,13 @@ function Textbox:handleEvent(event)
             self:deleteSelectedArea()
             Textbox.highlightPosition = -1
         end
-        
+
         Textbox.savedCursorVisualX = -1
 
-        label.text = label.text:sub(1, Textbox.cursorPosition) .. event.key .. label.text:sub(Textbox.cursorPosition+1, #label.text)
+        local a, b = require("CRDT")
+        print(a, b)
+        print(label, self.elements.label._text.value.gen, label.insertAt, getmetatable(label._text.value) == a, getmetatable(label._text.value) == b)
+        label._text.value:insertAt(event.key, Textbox.cursorPosition)
         Textbox.cursorPosition = Textbox.cursorPosition + 1
 
         -- Textbox.cursorVisualX = Textbox.cursorVisualX + rl.getCharWidth(event.key, label.fontName, label.fontSize, label.spacing)
@@ -319,10 +318,10 @@ function Textbox:handleEvent(event)
                 self:deleteSelectedArea()
                 Textbox.highlightPosition = -1
             end
-            
+
             if event.key == 257 then -- enter
-                label.text = label.text:sub(1, Textbox.cursorPosition) .. "\n" .. label.text:sub(Textbox.cursorPosition+1, #label.text)
-    
+                label._text.value:insertAt("\n", Textbox.cursorPosition)
+
                 Textbox.cursorVisualY = Textbox.cursorVisualY + label.fontSize + label.lineSpacing
                 Textbox.cursorVisualX = 0
                 Textbox.cursorPosition = Textbox.cursorPosition + 1
@@ -355,7 +354,8 @@ function Textbox:handleEvent(event)
         end
     end
 
-    if (self.lastText ~= label.text) then
+    if (self.lastGen ~= label._text.value.gen) then
+        self.lastGen = label._text.value.gen
         self:textChanged()
     end
 

@@ -13,10 +13,11 @@ end
 VarSpecTypes[function (varSpec, initialValue, ...)
     if type(initialValue) == "table" then return 1 else return -1 end
 end] = function (varSpec)
-    -- make all sub elements be varspecs too... maby?
-    -- idfk........
     varSpec.toSaveValue = function (self, indent, ami)
         return "{"..BreakdownObject(self:get(), indent.."\t", ami) .. "\n"..indent.."}"
+    end
+    varSpec.fromSaveValue = function (self, mod)
+        ApplyModification(self, mod)
     end
 
     varSpec.inspectorElement = function (self) -- TODO: some way to make this shorter; on all places where this is done.

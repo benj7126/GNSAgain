@@ -81,7 +81,7 @@ function getHoriDrag(self)
     end
 end
 
-function Split:newSplit(atEnd)
+function Split:newSplit(atEnd, workspace)
     if atEnd then
         table.insert(self.splits, 1)
     else
@@ -117,19 +117,20 @@ function Split:newSplit(atEnd)
     nButton:placeInto(self, "splitButtons")
     nCondition:placeInto(self)
 
-    local nTable = Split:new()
-    nTable.horizontal = not self.horizontal
-
-    if #self.workspaces == 1 then
-        self.workspaces[1] = Split:new(self.workspaces[1])
-        self.workspaces[1].horizontal = not self.horizontal
+    if not workspace then
+        workspace = Split:new()
+        workspace.horizontal = not self.horizontal
     end
 
+    -- if #self.workspaces == 1 then
+    --     self.workspaces[1] = nTable -- this mean anything..?
+    -- end
+
     if atEnd then
-        table.insert(self.workspaces, nTable)
+        table.insert(self.workspaces, workspace)
         self.dragging = #self.splits
     else
-        table.insert(self.workspaces, 1, nTable)
+        table.insert(self.workspaces, 1, workspace)
         self.dragging = 1
     end
 end
@@ -205,6 +206,9 @@ function Split:resize(x, y, w, h)
             lastV = thisV
         end
     end
+
+    print(self.workspaces, #self.workspaces, self.workspaces[#self.workspaces])
+
     local lastWorkspace = self.workspaces[#self.workspaces]
     if self.horizontal then
         lastWorkspace:resize(x + w * lastV, y, w * (1 - lastV), h)
@@ -218,6 +222,7 @@ function Split:resize(x, y, w, h)
 end
 
 function Split:draw()
+    print(#self.workspaces)
     for _, workspace in pairs(self.workspaces) do
         workspace:draw()
     end

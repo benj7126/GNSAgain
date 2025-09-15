@@ -114,13 +114,59 @@ if not loaded then
     loaded.workspace.elements = {elm, test}
 end]]
 
---[[local loaded = LoadObject("core") -- "origin" feels better, no?
+local Editor = require("workspaces.editor")
+local Toolbox = require("workspaces.toolbox")
+local SingleElement = require("workspaces.singleElement")
+local Inspector = require("elements.inspector")
+local ObjectTree = require("elements.objectTree")
+
+local collectedEditor = function ()
+    local editor = Editor:new()
+
+    local objecTree = ObjectTree:new()
+    local objecTreeWorkspace = SingleElement:new(objecTree)
+
+    local inspector = Inspector:new()
+    local inspectorWorkspace = SingleElement:new(inspector)
+
+    local leftSide = Stacked:new(objecTreeWorkspace)
+    leftSide:addWorkspace(Toolbox:new())
+
+    local core = Split:new(leftSide)
+    core.horizontal = true
+
+    core:newSplit(true, editor)
+    core:newSplit(true, inspectorWorkspace)
+
+    objecTree.objectID = editor.editorId
+    inspector.objectID = editor.editorId
+
+    core.splits = {0.2, 0.6}
+
+    return core
+end
+
+local loaded = nil
+-- local loaded = LoadObject("core") -- "origin" feels better, no?
+
+-- test new textbox stuff
+loaded = require("workspaces.elements"):new()
+local e = require("elements.element"):new()
+e.es.width.pixels = 400
+e.es.height.pixels = 300
+
+e.es.width.percent = 0
+e.es.height.percent = 0
+
+table.insert(e.elements, require("elements.box"):new())
+table.insert(e.elements, require("elements.textbox"):new())
+table.insert(loaded.elements, e)
 
 if not loaded then -- the defaults
     loaded = Stacked:new(Split:new(Selection:new(Split))) -- should maby be a reference to a 'main' elements workspace?
-    loaded:addWorkspace(Split:new(Selection:new(Split))) -- then this should be a split, at like 0.2~0.3 with toolbox at left and editor at right
+    loaded:addWorkspace(collectedEditor()) -- then this should be a split, at like 0.2~0.3 with toolbox at left and editor at right
     loaded:addWorkspace(Split:new(Selection:new(Split))) -- and lastly; settings..?
-end]]
+end
 
 ---- important stuff;;; \/
 
@@ -128,8 +174,9 @@ end]]
 -- working on making split work with string-based stuff.
 -- i also need to save/load the parent.
 
-local topWorkspace = nil --loaded
+local topWorkspace = loaded
 
+--[[
 topWorkspace = require("workspaces.elements"):new()
 
 ObjectTree = require("elements.objectTree")
@@ -177,6 +224,8 @@ Inspector.objectSelection[insp.objectID] = button.elements[2]
 table.insert(topWorkspace.elements, oTree);
 table.insert(topWorkspace.elements, button);
 table.insert(topWorkspace.elements, insp);
+
+--]]
 
 --[[
 local TraversableTree = require("elements.traversableTree")
@@ -238,8 +287,6 @@ end
  -- notes should be able to be pulled into 'categories'/sub-workspace
 
 function CoreUpdate()
-    button:resize(0, 0, 0, 0)
-
     -- print(test.elements.label.text)
     topWorkspace:update()
 

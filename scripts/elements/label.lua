@@ -1,3 +1,4 @@
+local CRDTDoc, _ = require("CRDT")
 local Element = require("elements.element")
 local Label = Element:from()
 RegisterClass(Label, "Label")
@@ -6,7 +7,8 @@ local VarSpec = require("varSpec")
 function Label:new(forLoad)
     local label = Element.new(Label)
 
-    label.text = VarSpec:new("")
+    -- label.text = "" -- for the display and allowing editing | regen on 'prepare' (only if characters have been changed)
+    label.text = VarSpec:new(CRDTDoc:new()) -- auto update text using VarSpec..?
     label.lines = {}
 
     label.fontName = VarSpec:new("")

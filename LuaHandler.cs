@@ -2,6 +2,7 @@
 using GNSUsingCS;
 using KeraLua;
 using NLua;
+using System.Diagnostics;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -32,7 +33,32 @@ namespace GNSAgain
             loadModules();
             setupMethods();
 
-            L.DoString(Modules["core"]); // should be a setting - default module name?
+            ExecuteLuaCode(Modules["core"], "core");
+        }
+
+        private static void ExecuteLuaCode(string code, string chunkName)
+        {
+            try
+            {
+                // xpcall is a protected call with an error handler.
+                // debug.traceback is the error handler we want.
+                // The chunkName argument is what makes the traceback useful.
+                L.DoString($@"
+        
+                    local status, err = xpcall(function()
+                        { code}
+                end, debug.traceback)
+
+            if not status then
+                        print('--- Lua Error ---')
+                        print(err)
+                    end
+                ", chunkName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"C# Exception during Lua execution: {ex.Message}");
+            }
         }
 
         public static bool SameTable(LuaTable a, LuaTable b)

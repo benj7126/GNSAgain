@@ -49,6 +49,13 @@ function VarSpecs:inspectorElement()
     print("missing, varSpec")
 end
 
+function VarSpecs:len()
+    return #self.value
+end
+function VarSpecs:__len()
+    return self:len()
+end
+
 function VarSpecs:get()
     return self.value
 end

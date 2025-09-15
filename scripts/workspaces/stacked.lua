@@ -28,7 +28,7 @@ function Stacked:addWorkspace(workspace)
             self.list.elements[self.focused].elements[1].color = rl.color(255, 155, 0)
             self.focused = idx
             self.list.elements[self.focused].elements[1].color = rl.color(255, 100, 0)
-            self.workspaces[self.focused]:resize(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4])
+            self.workspaces[self.focused]:resize(self.sizes[1], self.sizes[2], self.sizes[3], self.sizes[4] - (24 + 10))
         end
     end
 
@@ -92,7 +92,7 @@ end
 function Stacked:resize(x, y, w, h)
     self.sizes = {x, y, w, h}
 
-    self.workspaces[self.focused]:resize(x, y, w, h)
+    self.workspaces[self.focused]:resize(x, y, w, h - (24 + 10))
     self.list:resize(x, y, w, h)
 end
 

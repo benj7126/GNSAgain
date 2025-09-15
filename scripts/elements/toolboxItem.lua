@@ -62,7 +62,18 @@ function ToolboxItem:saveObject(object)
 
     self:writeString("src", CreateStringFromObject(object, self))
     
+    print(GetClassName(getmetatable(object)), "fa")
+    print(GetClassName(getmetatable(object.es)), "fa")
     self.elm = self:loadObject()
+    print(GetClassName(getmetatable(self.elm)), "fa")
+    print(GetClassName(getmetatable(self.elm.es)), "fa")
+
+    print(self)
+    print(self.elm)
+    print(self.elm.es)
+    print(self.elm.es.recalculate)
+    print(self.elm.resize)
+
     self.elm:resize(self.es.x, self.es.y, self.es.w, self.es.h)
 end
 

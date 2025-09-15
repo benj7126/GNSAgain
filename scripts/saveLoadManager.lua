@@ -135,7 +135,7 @@ function SaveObject(obj, path)
     ami:close()
 end
 
-local function applyModification(table, mod)
+function ApplyModification(table, mod)
     for i, v in pairs(mod) do
         if table["_"..i] and getmetatable(table["_"..i]) == VarSpec then
             table["_"..i]:fromSaveValue(v)
@@ -143,7 +143,7 @@ local function applyModification(table, mod)
             local didGoDownDepth = false
             if type(v) == "table" then
                 if table[i] then
-                    applyModification(table[i], v)
+                    ApplyModification(table[i], v)
                     didGoDownDepth = true
                 end
             end
@@ -222,7 +222,7 @@ function CreateObjectFromAMI(ami)
     if newElements then useOwnElementList = true end
     local obj = classList[class]:new(useOwnElementList)
 
-    applyModification(obj, modifications)
+    ApplyModification(obj, modifications)
 
     if newElements then
         obj.elements = newElements
