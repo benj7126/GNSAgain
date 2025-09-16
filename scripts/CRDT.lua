@@ -1,8 +1,17 @@
 local CRDTChar = {}
 CRDTChar.Min = 0
-CRDTChar.Max = 255
+CRDTChar.Max = 255 -- 255
 
 -- TODO: Would be neat to use some math random that leans more towards lower values as you normally write and add forward?
+function rnd(min, max)
+    local v = max - min
+
+    local r = math.random()
+    -- return min + math.floor(v*r)
+    -- return min + math.floor(v*r^4)
+    return min + math.floor(v*(r/(1 + v/50)))
+    -- return min
+end
 
 
 function CRDTChar:new(value)
@@ -16,108 +25,50 @@ function CRDTChar:new(value)
     return c
 end
 
-local function handleAdjacentValues(path, lPath, rPath, i)
-    local leftVal = lPath[i] or CRDTChar.Min
-    local rightVal = rPath[i] or CRDTChar.Max
-    local leftNext = lPath[i+1] or CRDTChar.Min
-    local rightNext = rPath[i+1] or CRDTChar.Max
-    
-    if math.random() < 0.5 then -- pick a random side
-        -- left side
-        table.insert(path, leftVal)
-        table.insert(path, math.random(leftNext, CRDTChar.Max))
-        if leftNext == CRDTChar.Max then
-            table.insert(path, math.random(CRDTChar.Min, CRDTChar.Max))
-        end
-    else
-        -- right side, fallback to left if no room
-        if rightNext ~= CRDTChar.Min then
-            table.insert(path, rightVal)
-            table.insert(path, math.random(CRDTChar.Min, rightNext))
-        else
-            table.insert(path, leftVal)
-            table.insert(path, math.random(leftNext, CRDTChar.Max))
-            if leftNext == CRDTChar.Max then
-                table.insert(path, math.random(CRDTChar.Min, CRDTChar.Max))
-            end
-        end
-    end
-end
-
 function CRDTChar:newBetween(value, L, R)
     local c = CRDTChar:new(value)
     local lPath = L and L.path or {}
     local rPath = R and R.path or {}
+    local len =  math.max(L and #L.path or 0, R and #R.path or 0)
 
-    print(L, R)
-    if L then
-        io.write("L is: " .. L.value .. " [")
-        for i = 1, #L.path do
-                io.write(L.path[i])
-            if i ~= #L.path then
-                io.write(", ")
-            end
-        end
-        print("]")
-    end
-    if R then
-        io.write("R is: " .. R.value .. " [")
-        for i = 1, #R.path do
-                io.write(R.path[i])
-            if i ~= #R.path then
-                io.write(", ")
-            end
-        end
-        print("]")
-    end
+    for i = 1, len do
+        local l, r = lPath[i] or CRDTChar.Min, rPath[i] or CRDTChar.Max+1
 
-    if #lPath == 0 and #rPath == 0 then
-        c.path = {math.random(CRDTChar.Min, CRDTChar.Max)}
-        return c
-    end
-
-    local maxLen = math.max(#lPath, #rPath)
-
-    if not R then -- fill r to enforce it being 'max'.
-        maxLen = maxLen + 1
-        for _ = 1, #lPath-1 do
-            table.insert(rPath, CRDTChar.Max)
-        end
-        table.insert(rPath, CRDTChar.Max+1)
-    end
-
-    for i = 1, maxLen do
-        local l = lPath[i] or (CRDTChar.Min - 1)
-        local r = rPath[i] or (CRDTChar.Max + 1)
-
-        print("checking", l, r)
         if l == r then
-            print("added", l, r)
             table.insert(c.path, l)
         else
             local diff = math.abs(l - r)
+
             if diff == 2 then
                 table.insert(c.path, l + 1)
+                return c
             elseif diff == 1 then
-                handleAdjacentValues(c.path, lPath, rPath, i)
+                if i == len then
+                    table.insert(c.path, l)
+                    table.insert(c.path, rnd(CRDTChar.Min+1, (rPath[i+1] or CRDTChar.Max+1)-1))
+                    return c
+                else
+                    table.insert(c.path, l)
+                end
             else
-                print(l, r)
-                table.insert(c.path, math.random(l + 1, r - 1)) -- math.min for making default rPath work
+                table.insert(c.path, rnd(l + 1, r - 1))
+                return c
             end
-            return c
         end
     end
+    
+    table.insert(c.path, rnd((lPath[len+1] or CRDTChar.Min) + 1, (rPath[len+1] or CRDTChar.Max+1) - 1))
 
     return c
 end
 
 function CRDTChar:__lt(other)
-    if getmetatable(other) == CRDTChar then return true end -- true => nil at end, ig?
+    if getmetatable(other) ~= CRDTChar then return true end -- true => nil at end, ig?
 
     for i = 1, math.max(#self.path, #other.path) do
-        local l = self.path[i] or (CRDTChar.Min - 1)
+        local l = self.path[i] or CRDTChar.Min
         local r = other.path[i] or (CRDTChar.Max + 1)
-        
+
         if l ~= r then
             return l < r
         end
@@ -184,14 +135,12 @@ function CRDTDoc:getCharIdx(char) -- char as in a crdt character
 
     while left < right do
         local mid = math.floor((left + right) / 2)
-        if self.chars < char then
+        if self.chars[mid] < char then
             left = mid + 1
         else
             right = mid
         end
     end
-
-    print("Got physical idx; ", left)
 
     return left
 end
